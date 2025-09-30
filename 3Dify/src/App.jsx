@@ -8,10 +8,10 @@ function App() {
   return (
     <>
     <div>
-      {/*<Message/>*/}
       </div>
       <div>
         <LandingPage/>
+        <Message/>
       </div>
     </>
   )
