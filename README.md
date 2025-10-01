@@ -84,7 +84,3 @@ firebase deploy
 - Add measurement tools to scale models for 3D printing
 - Improve model accuracy with AI-based filters
 - Support additional file formats (e.g., GLB)
-
-
-## 📜 License
-MIT License — Free to use and modify.
