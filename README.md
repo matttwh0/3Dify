@@ -21,7 +21,7 @@ Aztech 3D Model Generator simplifies the process of creating 3D models from real
 ### Cloud / Database
 - **Firebase** — Authentication, storage, and hosting
 
-## 💡 Features
+## Features
 - Upload 360° video of an object
 - Automatically extract frames and generate 3D models via photogrammetry
 - Preview and download 3D models (.obj/.stl)
@@ -29,7 +29,7 @@ Aztech 3D Model Generator simplifies the process of creating 3D models from real
 - (Optional) Share models with other users
 
 
-## 📁 Project Structure
+## Project Structure
 ```
 project-root/
 ├── client/ # React + Vite frontend
@@ -41,7 +41,7 @@ project-root/
 ```
 
 
-## 🔧 Getting Started
+## Getting Started
 
 
 ### Prerequisites
