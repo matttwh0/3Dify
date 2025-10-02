@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import './App.css'
 import Message from './Message';
-import LandingPage from './LandingPage';
+import LandingPage from './Dashboard';
 import PostPhotoScene from './PostForm';
+
 function App() {
   const [count, setCount] = useState(0)
 

@@ -8,6 +8,7 @@ import axios from 'axios';
 
 class PostPhotoScene extends Component {
 
+  autodeskURI = 'https://developer.api.autodesk.com/photo-to-3d/v1/photoscene'
   //constructor defining object for photoscene
   constructor(props) {
     super(props);
