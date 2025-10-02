@@ -8,7 +8,7 @@ import axios from 'axios';
 
 class PostPhotoScene extends Component {
 
-  autodeskURI = 'https://developer.api.autodesk.com/photo-to-3d/v1/photoscene'
+  PhotosceneURI = 'https://developer.api.autodesk.com/photo-to-3d/v1/photoscene'
   //constructor defining object for photoscene
   constructor(props) {
     super(props);
@@ -35,7 +35,7 @@ class PostPhotoScene extends Component {
     e.preventDefault();
     console.log(this.state);
 
-    axios.post(autodeskURI, this.state, {
+    axios.post(PhotosceneURI, this.state, {
       headers: headers
     })
       .then(response => {
