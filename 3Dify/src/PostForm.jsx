@@ -7,8 +7,7 @@ import React, { Component } from "react";
 import axios from 'axios';
 
 class PostPhotoScene extends Component {
-
-  PhotosceneURI = 'https://developer.api.autodesk.com/photo-to-3d/v1/photoscene'
+  URI = 'https://developer.api.autodesk.com/photo-to-3d/v1/photoscene'
   //constructor defining object for photoscene
   constructor(props) {
     super(props);
@@ -35,9 +34,7 @@ class PostPhotoScene extends Component {
     e.preventDefault();
     console.log(this.state);
 
-    axios.post(PhotosceneURI, this.state, {
-      headers: headers
-    })
+    axios.post(this.URI, this.state, { headers: this.headers})
       .then(response => {
         console.log(response)
       })
@@ -57,6 +54,7 @@ class PostPhotoScene extends Component {
             <input
               className="bg-gray-100 text-black-500 p-2 m-4 w-50"
               type="text"
+              placeholder ="photoscene name"
               name="scenename"
               value={scenename}
               onChange={this.changeHandler}
