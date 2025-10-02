@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import Message from './Message';
 import LandingPage from './LandingPage';
+import PostPhotoScene from './PostForm';
 function App() {
   const [count, setCount] = useState(0)
 
@@ -11,6 +12,7 @@ function App() {
       </div>
       <div>
         <LandingPage/>
+        <PostPhotoScene/>
         <Message/>
       </div>
     </>
