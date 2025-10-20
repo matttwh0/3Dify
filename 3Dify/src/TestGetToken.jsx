@@ -25,7 +25,7 @@ export function TestGetToken(){
     });
 
     //handles post request when button is clicked
-    async function handleClick(e){
+    async function handleClick(e){ //e is the event
         e.preventDefault(); //stop form submit reload
 
         try{
@@ -40,10 +40,21 @@ export function TestGetToken(){
         }
         }
     
+    //create <Token/> tag to pass value
+    function Token({token, setToken}){
+        return (
+        <div>
+            <p className = "text-blue-600">{token ? `Token: ${token}` : 'No token yet'}</p>
+            <button className = "text-blue-600"onClick={() => setToken('new value')}>Change token</button>
+        </div>
+        );
+    }
+
     return(
         <div>
             <form>
                 <div>
+                <Token token = {token} setToken = {setToken}/>
                     <button
                     onClick = {handleClick}
                     className="bg-gray-400 text-black p-2 m-4 w-30 h-20"
@@ -59,7 +70,8 @@ export function TestGetToken(){
 
 
 
-export function TestPostForm(){
+export function TestPostForm( {token, setToken} ){
+    <p className = "text-blue-600" > `{`token: ${token}`}`</p>
     return(
         console.log('test post form working')
     );
