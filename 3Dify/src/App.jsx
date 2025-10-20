@@ -3,7 +3,9 @@ import './App.css'
 import Message from './Message';
 import LandingPage from './Dashboard';
 import PostPhotoScene from './PostForm';
-import GetToken from './GetToken';
+import GetToken from './getToken';
+import { TestGetToken } from './TestGetToken';
+import { TestPostForm } from './TestPostForm';
 function App() {
   const [count, setCount] = useState(0)
 
@@ -14,7 +16,9 @@ function App() {
       <div>
         <LandingPage/>
         <PostPhotoScene/>
-        <GetToken/>
+        <TestPostForm/>
+        <TestGetToken/>
+        
         <Message/>
       </div>
     </>
