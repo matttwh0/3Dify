@@ -1,7 +1,7 @@
 import React, { Component, useState } from "react";
-
 import axios from "axios";
 
+//make sure to hide client secret and ID when finished 
 export function TestGetToken(){
 
     const [token, setToken] = useState(null);
@@ -13,7 +13,7 @@ export function TestGetToken(){
     
     //headers are 
     const headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/x-www-form-urlencoded", //'urlencoded' lets us know how to format the body: URLSearchParams
             Accept: "application/json",
             Authorization: `Basic ${encodedString}`,
         };
