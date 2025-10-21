@@ -21,7 +21,7 @@ class PostPhotoScene extends Component {
   }
     headers = {
       'Content-Type': '',
-      'Authorization': ''
+      'Authorization': '',
     }
 
   //allows you to add text to textbox
