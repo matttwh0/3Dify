@@ -1,65 +1,60 @@
-/* 
-This gets the token ID to make a photoscene POST request
-npm install js-based64
-*/
-
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import axios from "axios";
+import { PhotoScene } from "./PhotoScene";
+//make sure to hide client secret and ID when finished
+export function GetToken() {
+  const [token, setToken] = useState(null);
+  const [error, setError] = useState(null);
 
-class GetToken extends Component {
-  //TODO: use btoa()
-  GetTokenURI = "https://developer.api.autodesk.com/authentication/v2/token";
+  const getTokenURI =
+    "https://developer.api.autodesk.com/authentication/v2/token";
+  const originalString =
+    "GAjgqsQ2Xk0HmDGljBblQ5oio0jEY5AXI87YNzJJG0iYQnxX:jpK99MVLblBZCQ1NSx4exKi49sy5mNZP8D8M30xc4AwflzAUWwnUP8RmTkdYlrot";
+  const encodedString = window.btoa(originalString);
 
-  constructor(props) {
-    super(props);
-    this.originalString =
-      "GAjgqsQ2Xk0HmDGljBblQ5oio0jEY5AXI87YNzJJG0iYQnxX:jpK99MVLblBZCQ1NSx4exKi49sy5mNZP8D8M30xc4AwflzAUWwnUP8RmTkdYlrot";
-    this.encodedString = window.btoa(this.originalString);
+  //headers are
+  const headers = {
+    "Content-Type": "application/x-www-form-urlencoded", //'urlencoded' lets us know how to format the body: URLSearchParams
+    Accept: "application/json",
+    Authorization: `Basic ${encodedString}`,
+  };
 
-    this.headers = {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-      Authorization: `Basic ${this.encodedString}`,
-    };
-  }
-
-  body = new URLSearchParams({
+  //body parameters must be url encoded
+  const body = new URLSearchParams({
     grant_type: "client_credentials",
-    scope: "data:read",
+    scope: "data:read data:write",
   });
 
-  clickHandler = (e) => {
-    e.preventDefault();
-    console.log(this.body);
+  //handles post request when button is clicked
+  async function handleClick(e) {
+    //e is the event
+    e.preventDefault(); //stop form submit reload
 
-    axios
-      .post(this.GetTokenURI, this.body, { headers: this.headers })
-      .then((response) => {
-        const token = response.data.access_token; //our token 
-        console.log(`Token: ${token}`);
-        this.setState({token}); //store token in state 'this.state.token'
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-  render() {
-    return (
-      <div>
-        <form>
-          <div>
-            <button
-              onClick={this.clickHandler}
-              className="bg-gray-400 text-black p-2 m-4 w-30 h-20"
-              type="submit"
-            >
-              Generate Token
-            </button>
-          </div>
-        </form>
-      </div>
-    );
+    try {
+      //sends post request and adds it to state
+      const res = await axios.post(getTokenURI, body, { headers: headers });
+      setToken(res.data.access_token);
+      console.log(`full response: ${res.data.access_token}`);
+    } catch (err) {
+      setError(err?.response?.data || err.message);
+      console.error(err);
+    }
   }
-}
 
-export default GetToken;
+  return (
+    <div>
+      <form>
+        <div>
+          <button
+            onClick={handleClick}
+            className="bg-gray-400 text-black p-2 m-4 w-30 h-20"
+            type="button"
+          >
+            Generate Token Test
+          </button>
+        </div>
+      </form>
+      <PhotoScene token={token} setToken={setToken} />
+    </div>
+  );
+}
