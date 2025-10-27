@@ -1,4 +1,4 @@
-# Aztech
+# 3Dify
 3D Modeling Application
 Turn 360° videos into realistic, 3D-printable models in minutes.
 
