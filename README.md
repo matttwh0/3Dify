@@ -21,6 +21,9 @@ Aztech 3D Model Generator simplifies the process of creating 3D models from real
 ### Cloud / Database
 - **Firebase** — Authentication, storage, and hosting
 
+### Core Feature
+- **Autodesk Reality Capture** - file processing using photogrammetry techniques
+
 ## Features
 - Upload 360° video of an object
 - Automatically extract frames and generate 3D models via photogrammetry
