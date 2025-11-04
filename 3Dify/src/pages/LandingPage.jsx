@@ -1,6 +1,8 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-
+import { useState, useEffect } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
+import {auth} from '/src/index.js'
 const user = {
   name: 'Tom Cook',
   email: 'tom@example.com',
@@ -26,6 +28,23 @@ function classNames(...classes) {
 }
 
 export default function Example() {
+  const [user, setUser] = useState(null)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          name: firebaseUser.displayName || 'Anonymous User',
+          email: firebaseUser.email,
+          imageUrl: firebaseUser.photoURL || '/src/placeholder.webp',
+        })
+        console.log(firebaseUser)
+      } else {
+        setUser(null)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
   return (
     <>
       {/*
@@ -86,7 +105,7 @@ export default function Example() {
                       <span className="sr-only">Open user menu</span>
                       <img
                         alt=""
-                        src={user.imageUrl}
+                        src="/src/placeholder.webp"
                         className="size-8 rounded-full outline -outline-offset-1 outline-white/10"
                       />
                     </MenuButton>
@@ -143,13 +162,13 @@ export default function Example() {
                 <div className="shrink-0">
                   <img
                     alt=""
-                    src={user.imageUrl}
+                    src="/src/placeholder.webp"
                     className="size-10 rounded-full outline -outline-offset-1 outline-white/10"
                   />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base/5 font-medium text-white">{user.name}</div>
-                  <div className="text-sm font-medium text-gray-400">{user.email}</div>
+                  <div className="text-base/5 font-medium text-white">{user?.name}</div>
+                  <div className="text-sm font-medium text-gray-400">{user?.email}</div>
                 </div>
                 <button
                   type="button"
