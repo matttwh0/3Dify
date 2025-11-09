@@ -6,13 +6,11 @@ export function GetToken() {
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
 
-  const getTokenURI =
-    "https://developer.api.autodesk.com/authentication/v2/token";
-  const originalString =
-    "GAjgqsQ2Xk0HmDGljBblQ5oio0jEY5AXI87YNzJJG0iYQnxX:jpK99MVLblBZCQ1NSx4exKi49sy5mNZP8D8M30xc4AwflzAUWwnUP8RmTkdYlrot";
+  const getTokenURI = "https://developer.api.autodesk.com/authentication/v2/token";
+  const originalString = "GAjgqsQ2Xk0HmDGljBblQ5oio0jEY5AXI87YNzJJG0iYQnxX:jpK99MVLblBZCQ1NSx4exKi49sy5mNZP8D8M30xc4AwflzAUWwnUP8RmTkdYlrot";
   const encodedString = window.btoa(originalString);
 
-  //headers are
+  //headers are the envelope information 
   const headers = {
     "Content-Type": "application/x-www-form-urlencoded", //'urlencoded' lets us know how to format the body: URLSearchParams
     Accept: "application/json",

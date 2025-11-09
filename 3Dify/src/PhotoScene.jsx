@@ -1,6 +1,6 @@
 import React, { Component, useState } from "react";
 import axios from "axios";
-
+import {PostFile} from "./PostFile";
 export function PhotoScene( {token, setToken} ){
     const [photoScene, setPhotoScene] = useState(null);
     const [error, setError] = useState(null);
@@ -22,10 +22,11 @@ export function PhotoScene( {token, setToken} ){
         e.preventDefault();
 
         try{
+            //TODO: grab photoscene id and pass to token 
             const res = await axios.post(photoSceneURI, body, {headers: headers});
-            setPhotoScene(res.data);
+            setPhotoScene(res.data.photosceneid);
             console.log(`full response: ${res}`);
-            console.log("Status:", res.status);
+            console.log("Status:", res.data.photosceneid);
             console.log("Response data:", res.data);
         }
         catch(err) {
@@ -33,6 +34,7 @@ export function PhotoScene( {token, setToken} ){
             console.error(err);
         }
     }
+
     return(
         <div>
         <p className = "text-blue-600" > `{`token real: ${token}`}`</p>
@@ -47,6 +49,7 @@ export function PhotoScene( {token, setToken} ){
                 </button>
             </div>
         </form>
+        <PostFile photoScene = {photoScene} setPhotoSCene = {setPhotoScene}/>
         </div>
     );
 }
