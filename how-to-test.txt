@@ -1,5 +1,8 @@
-npm run dev -- to start frontend server 
+to start frontend server :
+    cd 3dify --> npm run dev  
 
+start flask backend server:
+    cd 3Dify -->  cd backend --> python3 main.py 
 
 HOW TO PASS STATE TO CHILD COMPONENT:
     - CREATE STATE IN PARENT COMPONENT 
