@@ -4,7 +4,9 @@ from flask import Flask, jsonify, request, Blueprint
 video_submit_bp = Blueprint("video_submit", __name__, template_folder="templates")
 
 @video_submit_bp.route("/video_request", methods=["POST"])
+
 def video_request():
+
     """Handles the upload of a file"""
     d = {}
     try:
