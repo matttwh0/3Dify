@@ -3,7 +3,8 @@ import { getAnalytics } from "firebase/analytics";
 import { 
     getAuth,
     connectAuthEmulator,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    onAuthStateChanged
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -22,4 +23,8 @@ const analytics = getAnalytics(firebaseApp);
 const auth = getAuth(firebaseApp);
 connectAuthEmulator(auth, "http://localhost:9099");
 
+
+
 export { auth, firebaseApp };
+
+
