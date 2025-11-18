@@ -1,23 +1,15 @@
-import { useState } from 'react'
-import './App.css'
-import Message from './Message';
-import LandingPage from './Dashboard';
-import PostPhotoScene from './PostForm';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./LandingPage";
+import SignIn from "./SignIn";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-    <div>
-      </div>
-      <div>
-        <LandingPage/>
-        <PostPhotoScene/>
-        <Message/>
-      </div>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/register" element={<SignIn />} /> {/* placeholder */}
+      </Routes>
+    </Router>
+  );
 }
-
-export default App
