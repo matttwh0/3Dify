@@ -1,23 +1,21 @@
-import { useState } from 'react'
-import './App.css'
-import Message from './Message';
-import LandingPage from './Dashboard';
-import PostPhotoScene from './PostForm';
-
+import { useState } from "react";
+import "./App.css";
+import Message from "./Message";
+import LandingPage from "./Dashboard";
+import { GetToken } from "./getToken";
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <>
-    <div>
-      </div>
+      <div></div>
       <div>
-        <LandingPage/>
-        <PostPhotoScene/>
-        <Message/>
+        <LandingPage />
+        <GetToken />
+        <Message />
       </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
