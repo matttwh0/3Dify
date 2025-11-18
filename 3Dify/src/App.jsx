@@ -1,21 +1,20 @@
-import { useState } from "react";
-import "./App.css";
-import Message from "./Message";
-import LandingPage from "./Dashboard";
-import { GetToken } from "./getToken";
-function App() {
-  const [count, setCount] = useState(0);
-
+import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import './App.css'
+import Message from './Message';
+import LandingPage from './pages/LandingPage';
+import SignInPage from './pages/SignInPage'
+import SignUpPage from './pages/SignUpPage'; 
+export default function App() {
   return (
-    <>
-      <div></div>
-      <div>
-        <LandingPage />
-        <GetToken />
-        <Message />
-      </div>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<SignInPage />} />
+        <Route path="/LandingPage" element={<LandingPage />} />
+        <Route path="/SignUpPage" element={<SignUpPage />} />
+
+      </Routes>
+    </Router>
   );
 }
 
-export default App;
