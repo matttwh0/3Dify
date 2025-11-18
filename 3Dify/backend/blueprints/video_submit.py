@@ -1,4 +1,7 @@
+#TODO: add token and photoscene to video_submit, put file input into new part
+#TODO: take mp4, splice into jpg imgs, add imgs to folder, upload batches of 20 to api
 from flask import Flask, jsonify, request, Blueprint
+from blueprints.post_photoscene import post_photoscene_bp, get_token, post_photoscene
 
 #create blueprint to be registered in main
 video_submit_bp = Blueprint("video_submit", __name__, template_folder="templates")
@@ -6,7 +9,6 @@ video_submit_bp = Blueprint("video_submit", __name__, template_folder="templates
 @video_submit_bp.route("/video_request", methods=["POST"])
 
 def video_request():
-
     """Handles the upload of a file"""
     d = {}
     try:
