@@ -1,7 +1,7 @@
 from flask import Flask, Blueprint, jsonify
 from flask_cors import CORS
 from blueprints.video_submit import video_submit_bp 
-from blueprints.post_photoscene import post_photoscene_bp, get_token, post_photoscene
+from blueprints.post_photoscene import post_photoscene_bp
 
 app = Flask(__name__)
 CORS(app, resources={
