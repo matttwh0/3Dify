@@ -4,8 +4,11 @@ from blueprints.post_photoscene import (
     get_token,
     create_photoscene,
     upload_images,
-    start_processing
+    start_processing,
+    get_photoscene_progress,
+    get_result_link
 )
+
 import os
 import cv2
 
@@ -101,3 +104,26 @@ def extract_frames(video_path, num_frames=20):
 
     cap.release()
     return saved_paths
+
+# GET /photoscene/<id>/status
+@video_submit_bp.route("/photoscene/<photosceneid>/status", methods=["GET"])
+def photoscene_status(photosceneid):
+    try:
+        token = get_token()
+        progress = get_photoscene_progress(token, photosceneid)
+        return jsonify({"status": 1, "photosceneid": photosceneid, "progress": progress})
+    except Exception as e:
+        print(f"Status error: {e}")
+        return jsonify({"status": 0, "error": str(e)}), 500
+
+# GET /photoscene/<id>/result?format=rcm
+@video_submit_bp.route("/photoscene/<photosceneid>/result", methods=["GET"])
+def photoscene_result(photosceneid):
+    fmt = request.args.get("format", "rcm")  # default to rcm
+    try:
+        token = get_token()
+        result = get_result_link(token, photosceneid, fmt=fmt)
+        return jsonify({"status": 1, "photosceneid": photosceneid, "result": result})
+    except Exception as e:
+        print(f"Result error: {e}")
+        return jsonify({"status": 0, "error": str(e)}), 500
