@@ -1,4 +1,4 @@
-# Aztech
+# 3Dify
 3D Modeling Application
 Turn 360° videos into realistic, 3D-printable models in minutes.
 
@@ -20,6 +20,9 @@ Aztech 3D Model Generator simplifies the process of creating 3D models from real
   
 ### Cloud / Database
 - **Firebase** — Authentication, storage, and hosting
+
+### Core Feature
+- **Autodesk Reality Capture** - file processing using photogrammetry techniques
 
 ## Features
 - Upload 360° video of an object
