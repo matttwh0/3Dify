@@ -1,3 +1,5 @@
+import UploadVideo from "./components/UploadVideo";
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-black text-gray-100">
@@ -29,10 +31,12 @@ export default function LandingPage() {
   );
 }
 
+/* ----------------------- HEADER ----------------------- */
+
 function SiteHeader() {
   return (
     <header className="max-w-6xl mx-auto flex items-center justify-between px-4 py-4">
-      <a href="#" className="font-mono text-lg tracking-widest">3Dify</a>
+      <a href="/" className="font-mono text-lg tracking-widest">3Dify</a>
 
       <nav className="hidden md:flex items-center gap-8 text-sm text-gray-300">
         <a href="#about" className="hover:text-white">about us ▾</a>
@@ -41,12 +45,25 @@ function SiteHeader() {
       </nav>
 
       <div className="flex items-center gap-2">
-        <button className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300">Sign in</button>
-        <button className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300">Register</button>
+        <a
+          href="/signin"
+          className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
+        >
+          Sign in
+        </a>
+
+        <a
+          href="/register"
+          className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
+        >
+          Register
+        </a>
       </div>
     </header>
   );
 }
+
+/* ----------------------- HERO ----------------------- */
 
 function Hero() {
   return (
@@ -59,13 +76,15 @@ function Hero() {
         <a href="#try" className="inline-block text-xs uppercase tracking-widest px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300">Try 3Dify</a>
       </div>
 
-      {/* Optional hero placeholder image icon per Figma */}
+      {/* Placeholder icon */}
       <div className="mt-16 w-full max-w-md h-40 md:h-52 rounded-xl border border-white/10 bg-white/[0.03] grid place-items-center">
         <ImageIcon />
       </div>
     </main>
   );
 }
+
+/* ----------------------- GALLERY ----------------------- */
 
 function GalleryPreview() {
   const items = [
@@ -102,7 +121,6 @@ function GalleryPreview() {
         <a href="/gallery" className="text-xs text-gray-400 hover:text-white">view full gallery →</a>
       </div>
 
-      {/* Card grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {items.map((it) => (
           <article key={it.id} className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">
@@ -117,20 +135,20 @@ function GalleryPreview() {
         ))}
       </div>
 
-      {/* Big tagline block per Figma */}
       <div className="mt-10 md:mt-12 py-6 md:py-10 border-t border-white/10">
         <p className="max-w-3xl font-mono text-2xl md:text-4xl leading-tight">
           3Dify uses AI to generate detailed 3D models from simple video inputs. It reconstructs depth, texture, and geometry with precision.
         </p>
       </div>
 
-      {/* Small caption + link */}
       <p className="mt-2 text-xs text-gray-400 max-w-2xl">
         3Dify makes 3D modeling effortless. Transform any video into a shareable, realistic 3D model — no design experience required. <a href="#try" className="underline-offset-2 hover:underline">Try 3Dify →</a>
       </p>
     </div>
   );
 }
+
+/* ----------------------- HOW WE WORK ----------------------- */
 
 function HowWeWork() {
   const steps = [
@@ -167,6 +185,8 @@ function HowWeWork() {
   );
 }
 
+/* ----------------------- BEFORE / AFTER ----------------------- */
+
 function BeforeAfter() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 md:py-16">
@@ -188,6 +208,8 @@ function BeforeAfter() {
   );
 }
 
+/* ----------------------- CALL TO ACTION ----------------------- */
+
 function CallToAction() {
   return (
     <section id="try" className="border-t border-white/10">
@@ -197,15 +219,22 @@ function CallToAction() {
             <h3 className="text-xl md:text-2xl font-mono">Ready to turn video into 3D?</h3>
             <p className="text-sm text-gray-300 mt-1">Start with sample data or upload your own footage.</p>
           </div>
+
           <div className="flex gap-3">
-            <button className="text-xs px-3 py-2 rounded-md border border-gray-600 hover:border-gray-300">Upload video</button>
-            <button className="text-xs px-3 py-2 rounded-md border border-gray-600 hover:border-gray-300">Use sample</button>
+            {/* Replaced old button with upload component */}
+            <UploadVideo />
+
+            <button className="text-xs px-3 py-2 rounded-md border border-gray-600 hover:border-gray-300">
+              Use sample
+            </button>
           </div>
         </div>
       </div>
     </section>
   );
 }
+
+/* ----------------------- FOOTER ----------------------- */
 
 function Footer() {
   return (
@@ -222,7 +251,8 @@ function Footer() {
   );
 }
 
-/* --- Small UI bits --- */
+/* ----------------------- SMALL UI PIECES ----------------------- */
+
 function Spinner() {
   return (
     <div className="flex items-center gap-2 text-gray-400">
