@@ -26,7 +26,7 @@ os.makedirs(TEMP_VIDEO_DIR, exist_ok=True)
 @video_submit_bp.route("/video_request", methods=["POST"])
 def video_request():
     d = {}
-
+    
     try:
         # 1. Receive video from frontend
         file = request.files["file"]
