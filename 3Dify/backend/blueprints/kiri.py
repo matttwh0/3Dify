@@ -1,60 +1,69 @@
-import requests, time
+import os
+import time
+import requests
+from flask import Blueprint, jsonify
 
-from flask import Blueprint 
-#base URL : https://api.kiriengine.app/api/
-
-#The API Key format is kiri-<random-string>
-#api key : #kiri_VRO7sPXRPfup5gLIMWgTy_cJe5yDTAwvN36S8WaVJKE
 kiri_bp = Blueprint("kiri_api", __name__, template_folder="templates")
-
-jobs = {}
 
 @kiri_bp.route("/kiri_api", methods=["POST"])
 def generate_model():
-    
     api_key = 'kiri_VRO7sPXRPfup5gLIMWgTy_cJe5yDTAwvN36S8WaVJKE'
 
-    url = 'https://api.kiriengine.app/api/v1/open/photo/video' 
-
+    upload_url = 'https://api.kiriengine.app/api/v1/open/photo/video'
     headers = {
         'Authorization': f'Bearer {api_key}'
     }
 
+    # Path to your hardcoded demo video
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    video_path = os.path.join(base_dir, "temp_videos", "integra_demo.mp4")
+
     files = {
-        'videoFile': ('video.mp4', open('temp_videos/integra_demo.mp4', 'rb'), 'video/mp4')
+        'videoFile': ('video.mp4', open(video_path, 'rb'), 'video/mp4')
     }
 
     data = {
-    'modelQuality': '3',
-    'textureQuality': '3',
-    'fileFormat': 'OBJ',
-    'isMask': '1',
-    'textureSmoothing': '1'
-
+        'modelQuality': '3',
+        'textureQuality': '3',
+        'fileFormat': 'OBJ',
+        'isMask': '1',
+        'textureSmoothing': '1'
     }
 
-    post = requests.post(url, headers=headers, files=files, data=data)
+    # STEP 1: send video to Kiri
+    post = requests.post(upload_url, headers=headers, files=files, data=data)
+    print("KIRI UPLOAD STATUS:", post.status_code)
+    upload_json = post.json()
+    print("UPLOAD RESPONSE JSON:", upload_json)
 
-    time.sleep(2.5)
+    serialize_id = upload_json['data']['serialize']
 
-    print(post.status_code)
-    print(post.json())
+    # STEP 2: poll Kiri for model readiness
+    poll_url = (
+        f'https://api.kiriengine.app/api/v1/open/model/getModelZip'
+        f'?serialize={serialize_id}'
+    )
 
-    id = post.json()['data']['serialize']
-    model_url = f'https://api.kiriengine.app/api/v1/open/model/getModelZip?serialize={id}'
     while True:
-        resp = requests.get(model_url, headers=headers)
+        resp = requests.get(poll_url, headers=headers)
+        print("Polling...", resp.status_code, resp.headers.get("Content-Type"))
 
-        if resp.status_code == 200 and resp.headers.get("Content-Type") == "application/zip":
-            print("Model ready!")
-            return {"downloadUrl": model_url}
+        # Kiri always returns JSON here
+        try:
+            j = resp.json()
+            print("Polling JSON:", j)
+        except Exception:
+            j = None
 
-        else:
-            print("Not ready yet:", resp.json())
-            time.sleep(5)   # wait 5 seconds and try again
-        #raise HTTPException(status_code=404, detail="Model Error")
-    
-# @kiri_bp.route("/kiri_progress/<job_id>", methods=["GET"])
-# def get_progress():
-#     return 0
+        # ✅ MODEL READY: code 200 + data.modelUrl present
+        if (
+            j
+            and j.get("code") == 200
+            and j.get("data", {}).get("modelUrl")
+        ):
+            final_url = j["data"]["modelUrl"]
+            print("Model ready! Returning:", final_url)
+            return jsonify({"downloadUrl": final_url})
 
+        # Still processing
+        time.sleep(5)
