@@ -1,5 +1,5 @@
 import requests, time
-from fastapi import HTTPException
+
 from flask import Blueprint 
 #base URL : https://api.kiriengine.app/api/
 
@@ -21,7 +21,7 @@ def generate_model():
     }
 
     files = {
-        'videoFile': ('video.mp4', open('/Users/matthewtran/Downloads/integra_demo.mp4', 'rb'), 'video/mp4')
+        'videoFile': ('video.mp4', open('temp_videos/integra_demo.mp4', 'rb'), 'video/mp4')
     }
 
     data = {
