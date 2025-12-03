@@ -21,7 +21,7 @@ def generate_model():
     }
 
     files = {
-        'videoFile': ('video.mp4', open('/Users/matthewtran/Downloads/integra_demo.mp4', 'rb'), 'video/mp4')
+        'videoFile': ('video.mp4', open('/Users/matthewtran/Aztech 3D Modeling App/Aztech/3Dify/backend/temp_videos/integra_demo.mp4', 'rb'), 'video/mp4')
     }
 
     data = {
