@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
-import SignIn from "./pages/SignIn";
+import SignIn from "/src/pages/SignIn.jsx";
 
 export default function App() {
   return (
