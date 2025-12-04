@@ -1,85 +1,168 @@
-#TODO: rename file to something broader, change blueprint names and routes for each function 
-from flask import Flask, Blueprint
-import base64
-from urllib.parse import urlencode
+#kiri_VRO7sPXRPfup5gLIMWgTy_cJe5yDTAwvN36S8WaVJKE
+#kiri api key
+from flask import Blueprint
 import requests
-post_photoscene_bp = Blueprint('post_photoscene', __name__, template_folder='templates')
+import os
 
-#generate token from client secrets 
-@post_photoscene_bp.route('/photoscene', methods=['POST'])
+post_photoscene_bp = Blueprint("post_photoscene", __name__, template_folder="templates")
 
-def get_token(): #call this method in photoscene function
-    token_URL = 'https://developer.api.autodesk.com/authentication/v2/token'
-    client_ID = 'GAjgqsQ2Xk0HmDGljBblQ5oio0jEY5AXI87YNzJJG0iYQnxX'
-    client_secret = 'jpK99MVLblBZCQ1NSx4exKi49sy5mNZP8D8M30xc4AwflzAUWwnUP8RmTkdYlrot'
+# -------------------------------
+# 1. GET APS TOKEN
+# -------------------------------
+def get_token():
+    url = "https://developer.api.autodesk.com/authentication/v2/token"
 
-    raw = f'{client_ID}:{client_secret}' # combine client id and secret for format
+    client_id = "GAjgqsQ2Xk0HmDGljBblQ5oio0jEY5AXI87YNzJJG0iYQnxX"
+    client_secret = "jpK99MVLblBZCQ1NSx4exKi49sy5mNZP8D8M30xc4AwflzAUWwnUP8RmTkdYlrot"
 
-    #encode client secret per API requirements 
-    encoded = base64.b64encode(raw.encode()).decode()
+    headers = { "Content-Type": "application/x-www-form-urlencoded" }
 
-    #'address and other info on front of envelope'
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded', 
-        'Accept': 'application/json',
-        'Authorization': f'Basic {encoded}',
+    data = {
+        "grant_type": "client_credentials",
+        "scope": "data:read data:write"
     }
 
-    #'contents within envelope'
-    body = urlencode({
-        'grant_type': 'client_credentials',
-        'scope': 'data:read data:write'  
-    })
+    # APS requires BASIC AUTH (client_id, client_secret)
+    resp = requests.post(url, headers=headers, data=data, auth=(client_id, client_secret))
+    print("\n=== TOKEN RESPONSE ===")
+    print(resp.status_code, resp.text)
 
-    #post request to API
-    response = requests.post(token_URL, headers=headers,data=body)
+    resp.raise_for_status()
+    return resp.json()["access_token"]
 
-    token  = response.json()
-    return token['access_token']
 
-#<---------------------------------POST_PHOTOSCENE------------------------------------->
-
-@post_photoscene_bp.route('/create_photoscene', methods=['POST'])
-
-def post_photoscene():
-
-    token_URL = 'https://developer.api.autodesk.com/photo-to-3d/v1/photoscene'
-    token = get_token()
+# -------------------------------
+# 2. CREATE PHOTOSCENE
+# -------------------------------
+def create_photoscene(token):
+    url = "https://developer.api.autodesk.com/photo-to-3d/v1/photoscene"
 
     headers = {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': f'Bearer {token}',
-      'Accept': 'application/json'
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json"
     }
 
-    #request data
-    body = urlencode({
-      'scenename': 'testphotoscene1',
-      format: 'rcm',
-      'scenetype': 'object'
-    })
+    data = {
+        "scenename": "testphotoscene1",
+        "format": "obj",
+        "scenetype": "object"
+    }
 
-    #post request to API 
-    response = requests.post(token_URL, headers=headers,data=body)
-    photoscene = response.json()
-    return photoscene.get('Photoscene','error generating photoscene, refer to post_photoscene.py')
+    resp = requests.post(url, headers=headers, data=data)
+    print("\n=== CREATE PHOTOSCENE RESPONSE ===")
+    print(resp.status_code, resp.text)
 
-#cleaner output
-# photoscene = response.json()
-# photoscene_id = photoscene["Photoscene"]["photosceneid"]
-# return {"photosceneid": photoscene_id}
+    resp.raise_for_status()
+    scene = resp.json()
+    return scene["Photoscene"]["photosceneid"]
 
 
-"""
-Instance variables are owned by instances of the class. This means that for each object
- or instance of a class, the instance variables are different
+# -------------------------------
+# 3. UPLOAD IMAGES
+# -------------------------------
+def upload_images(token, photosceneid, image_paths):
+    url = "https://developer.api.autodesk.com/photo-to-3d/v1/file"
 
-instance variables are defined within methods. 
+    results = []
+    for path in image_paths:
+        with open(path, "rb") as f:
+            files = {
+                "file[]": (os.path.basename(path), f, "image/jpeg")
+            }
 
-class Shark:
-    def __init__(self, name, age):
-        self.name = name
-        self.age = age
+            data = {
+                "photosceneid": photosceneid,
+                "type": "image"   # <-- REQUIRED
+            }
 
-new_shark = Shark("Sammy", 5)
-"""
+            headers = {
+                "Authorization": f"Bearer {token}"
+            }
+
+            resp = requests.post(url, headers=headers, files=files, data=data)
+
+            print("\n=== UPLOAD RESPONSE ===")
+            print(resp.status_code, resp.text)
+
+            resp.raise_for_status()
+            results.append(resp.json())
+
+    return results
+
+
+
+
+# -------------------------------
+# 4. START PROCESSING
+# -------------------------------
+def start_processing(token, photosceneid):
+    url = f"https://developer.api.autodesk.com/photo-to-3d/v1/photoscene/{photosceneid}"
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+
+    resp = requests.post(url, headers=headers)
+
+    print("\n=== PROCESS RESPONSE ===")
+    print(resp.status_code, resp.text)
+
+    resp.raise_for_status()
+    return resp.json()
+
+# -------------------------------
+# 5. GET PROGRESS
+# -------------------------------
+def get_photoscene_progress(token, photosceneid):
+    """
+    Hit the progress endpoint to see if the job is done.
+    Docs: GET photoscene/{photosceneid}/progress
+    """
+    url = f"https://developer.api.autodesk.com/photo-to-3d/v1/photoscene/{photosceneid}/progress"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+
+    resp = requests.get(url, headers=headers)
+    print("\n=== PROGRESS RESPONSE ===")
+    print(resp.status_code, resp.text)
+    resp.raise_for_status()
+    return resp.json()
+
+# -------------------------------
+# 6. GET RESULT 
+# -------------------------------
+def get_result_link(token, photosceneid, fmt="obj"):
+    """
+    Get a time-limited HTTPS link to the output file.
+    Docs say GET photoscene/{photosceneid} returns a link to the result. :contentReference[oaicite:0]{index=0}
+    """
+    url = f"https://developer.api.autodesk.com/photo-to-3d/v1/photoscene/{photosceneid}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    }
+
+    # Some variants use query params like format=rcm.
+    # If your output isn’t what you want, you can tweak these.
+    params = {
+        "format": fmt  # try "rcm", "obj", "fbx", etc depending on what you want
+    }
+
+    resp = requests.get(url, headers=headers, params=params)
+    print("\n=== RESULT RESPONSE ===")
+    print(resp.status_code, resp.text)
+    resp.raise_for_status()
+    return resp.json()
+
+
+#start it, grab the photoscene id from the server and then paste commands below using that id
+#start: curl -X POST -F "file=@/Users/matthewtran/Downloads/water_bottle360.mp4" http://127.0.0.1:5000/video_request
+
+# status: curl http://127.0.0.1:5000/photoscene/1jGR9Dvwb5pXTkINIfKuyLMEprHR3cnEYUlCKAYF9vM/status
+
+#result: curl http://127.0.0.1:5000/photoscene/1jGR9Dvwb5pXTkINIfKuyLMEprHR3cnEYUlCKAYF9vM/result
+
