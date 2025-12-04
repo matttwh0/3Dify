@@ -1,4 +1,6 @@
-import UploadVideo from '/src/components/UploadVideo.jsx'
+import UploadVideo from "../components/UploadVideo";
+import ModelViewer from "../components/ModelViewer";
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-black text-gray-100">
