@@ -77,9 +77,9 @@ function Hero() {
         <a href="#try" className="inline-block text-xs uppercase tracking-widest px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300">Try 3Dify</a>
       </div>
 
-      {/* 🔄 Replace this placeholder with the real model viewer */}
-      <div className="mt-16 w-full max-w-md h-60 md:h-[400px] rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
-        <ModelViewer />
+      {/* Placeholder icon */}
+      <div className="mt-16 w-full max-w-md h-40 md:h-52 rounded-xl border border-white/10 bg-white/[0.03] grid place-items-center">
+        <ImageIcon />
       </div>
     </main>
   );
