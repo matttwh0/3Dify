@@ -53,9 +53,9 @@ project-root/
 - Firebase CLI (optional for hosting)
 
 
-### 1. Install Frontend
+### 1. Install & Run Frontend
 ```bash
-cd client
+cd ./3dify/
 npm install
 npm run dev
 ```
@@ -63,9 +63,11 @@ npm run dev
 
 ### 2. Run Backend
 ```bash
-cd server
+cd ./3dify/backend/
 pip install -r requirements.txt
-flask run
+python3 main.py
+scroll down and click 'choose video'
+click 'upload video' when ready
 ```
 
 
