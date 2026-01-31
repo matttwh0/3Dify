@@ -17,6 +17,7 @@ Aztech 3D Model Generator simplifies the process of creating 3D models from real
   
 ### Backend
 - **Flask** — Lightweight Python web framework
+- **FastAPI**
   
 ### Cloud / Database
 - **Firebase** — Authentication, storage, and hosting
