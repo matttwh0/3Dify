@@ -1,5 +1,7 @@
 import UploadVideo from "../components/UploadVideo";
 import ModelViewer from "../components/ModelViewer";
+import { useAuth } from "../context/AuthContext";
+
 
 export default function LandingPage() {
   return (
@@ -37,12 +39,25 @@ export default function LandingPage() {
 function SiteHeader() {
   return (
     <header className="max-w-6xl mx-auto flex items-center justify-between px-4 py-4">
-      <a href="/" className="font-mono text-lg tracking-widest">3Dify</a>
+      <a href="/" className="font-mono text-lg tracking-widest">
+        3Dify
+      </a>
 
       <nav className="hidden md:flex items-center gap-8 text-sm text-gray-300">
-        <a href="#about" className="hover:text-white">about us ▾</a>
-        <a href="#gallery" className="hover:text-white">gallery ▾</a>
-        <a href="#how" className="hover:text-white">how we work ▾</a>
+        <a href="#about" className="hover:text-white">
+          about us ▾
+        </a>
+        <a href="#gallery" className="hover:text-white">
+          gallery ▾
+        </a>
+        <a href="#how" className="hover:text-white">
+          how we work ▾
+        </a>
+
+        {/* ALWAYS VISIBLE */}
+        <a href="/projects" className="hover:text-white">
+          projects
+        </a>
       </nav>
 
       <div className="flex items-center gap-2">
@@ -63,6 +78,7 @@ function SiteHeader() {
     </header>
   );
 }
+
 
 /* ----------------------- HERO ----------------------- */
 
