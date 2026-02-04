@@ -9,7 +9,10 @@ CORS(app, resources={
         "origins": [
             "http://localhost:5173",
             "http://127.0.0.1:5173"
-        ]
+        ],
+        "methods": ["*"],
+        "allow_headers": ["*"],
+        "supports_credentials": True
     }
 })
 
@@ -20,7 +23,7 @@ app.register_blueprint(kiri_bp)
 
 @app.route("/")
 def helloWorld():
-    return "hello world"
+    return "status: ok"
 
 if __name__ == "__main__":
     app.run(debug=True)

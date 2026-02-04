@@ -1,13 +1,15 @@
 import os
 import time
 import requests
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, make_response
 
 kiri_bp = Blueprint("kiri_api", __name__, template_folder="templates")
 
+from flask import Blueprint, jsonify, make_response
+
 @kiri_bp.route("/kiri_api", methods=["POST"])
 def generate_model():
-    api_key = 'kiri_VRO7sPXRPfup5gLIMWgTy_cJe5yDTAwvN36S8WaVJKE'
+    api_key = 'kiri_FM00YuopRoktzzu-6tWIcX5T_e8lHKcvzi-ZlGiuM3M'
 
     upload_url = 'https://api.kiriengine.app/api/v1/open/photo/video'
     headers = {
