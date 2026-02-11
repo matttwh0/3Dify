@@ -1,6 +1,10 @@
 import UploadVideo from "../components/UploadVideo";
 import ModelViewer from "../components/ModelViewer";
 import { useAuth } from "../context/AuthContext";
+import { useEffect, useState, useRef } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase"; // adjust path if needed
+import { signOut } from "firebase/auth";
 
 
 export default function LandingPage() {
@@ -37,6 +41,31 @@ export default function LandingPage() {
 /* ----------------------- HEADER ----------------------- */
 
 function SiteHeader() {
+  const handleSignOut = async () => {
+  await signOut(auth);
+  setOpen(false);
+};
+
+  const [user, setUser] = useState(null);
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsub();
+  }, []);
+
+  // close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   return (
     <header className="max-w-6xl mx-auto flex items-center justify-between px-4 py-4">
       <a href="/" className="font-mono text-lg tracking-widest">
@@ -44,40 +73,62 @@ function SiteHeader() {
       </a>
 
       <nav className="hidden md:flex items-center gap-8 text-sm text-gray-300">
-        <a href="#about" className="hover:text-white">
-          about us ▾
-        </a>
-        <a href="#gallery" className="hover:text-white">
-          gallery ▾
-        </a>
-        <a href="#how" className="hover:text-white">
-          how we work ▾
-        </a>
-
-        {/* ALWAYS VISIBLE */}
-        <a href="/projects" className="hover:text-white">
-          projects
-        </a>
+        <a href="#about" className="hover:text-white">about us ▾</a>
+        <a href="#gallery" className="hover:text-white">gallery ▾</a>
+        <a href="#how" className="hover:text-white">how we work ▾</a>
+        <a href="/projects" className="hover:text-white">projects</a>
       </nav>
 
-      <div className="flex items-center gap-2">
-        <a
-          href="/signin"
-          className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
-        >
-          Sign in
-        </a>
+      <div className="flex items-center gap-2 relative" ref={menuRef}>
+        {!user ? (
+          <>
+            <a
+              href="/signin"
+              className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
+            >
+              Sign in
+            </a>
 
-        <a
-          href="/register"
-          className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
-        >
-          Register
-        </a>
+            <a
+              href="/register"
+              className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
+            >
+              Register
+            </a>
+          </>
+        ) : (
+          <>
+            <button onClick={() => setOpen(!open)}>
+              <img
+                src={user.photoURL || "/default-avatar.png"}
+                alt="Profile"
+                className="w-8 h-8 rounded-full border border-gray-600 hover:border-white"
+              />
+            </button>
+
+            {open && (
+              <div className="absolute right-0 top-12 w-40 bg-black border border-gray-700 rounded-md shadow-lg text-sm">
+                <a
+                  href="/profile"
+                  className="block px-4 py-2 hover:bg-gray-800"
+                >
+                  View profile
+                </a>
+                <button
+                  onClick={() => handleSignOut(auth)}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-800"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </header>
   );
 }
+
 
 
 /* ----------------------- HERO ----------------------- */
