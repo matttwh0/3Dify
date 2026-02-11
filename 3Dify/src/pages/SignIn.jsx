@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { connectAuthEmulator } from "firebase/auth";
-import { firebaseApp } from "..";
+import { firebaseApp } from "../firebase";
 const auth = getAuth(firebaseApp); // get Firebase Auth instance
-connectAuthEmulator(auth, "http://localhost:9099");
+// connectAuthEmulator(auth, "http://localhost:9099");
 
 export default function SignIn() {
    const [error, setError] = useState("");
