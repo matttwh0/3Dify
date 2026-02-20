@@ -1,6 +1,13 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { 
+    getAuth,
+    connectAuthEmulator,
+    signInWithEmailAndPassword,
+    onAuthStateChanged
+} from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDn2EB9SmFvmEf2ciPPVjOhcO0MQLKJnY4",
@@ -9,14 +16,17 @@ const firebaseConfig = {
   storageBucket: "dify-86229.firebasestorage.app",
   messagingSenderId: "348783696465",
   appId: "1:348783696465:web:7cbecbe7dded7a63a13670",
-  measurementId: "G-QV4EGDW30N",
+  measurementId: "G-QV4EGDW30N"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
 
-// Auth (THIS IS WHAT WAS MISSING)
-export const auth = getAuth(app);
+const auth = getAuth(firebaseApp);
+export const db = getFirestore(firebaseApp);
+// connectAuthEmulator(auth, "http://localhost:9099");
 
-// Analytics (optional, safe to keep)
-const analytics = getAnalytics(app);
+
+
+export { auth, firebaseApp };
+
+
