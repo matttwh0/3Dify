@@ -79,6 +79,11 @@ firebase init
 firebase deploy
 ```
 
+### 4. Test Auth(Optional)
+- Uncomment every line containing "connectAuthEmulator(auth, "http://localhost:9099");"
+```bash
+firebase emulators:start
+```
 
 ## Team Aztech
 - Jahnavi Panchal — jpanchal7872@sdsu.edu

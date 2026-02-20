@@ -4,6 +4,9 @@ to start frontend server :
 start flask backend server:
     cd 3Dify -->  cd backend --> python3 main.py 
 
+start firebase emulators:
+    cd 3Dify --> firebase emulators:start
+
 HOW TO PASS STATE TO CHILD COMPONENT:
     - CREATE STATE IN PARENT COMPONENT 
     - ADD CHILD HTML TAG INTO PARENT RETURN STATEMENT WITH PROPS (ARGUMENTS)
