@@ -3,3 +3,7 @@
 .DS_Store
 3Dify/backend/temp.mp4
 *.mp4
+3Dify/backend/temp.mp4
+*.mp4
+__pycache__/
+*.pyc
