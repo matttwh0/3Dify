@@ -9,14 +9,18 @@ export default function UploadVideo() {
     setFile(selected);
     setVideoURL(URL.createObjectURL(selected));
   };
-
+  
   // DEMO VERSION: Only trigger KIRI API (NO file upload)
   const handleUpload = async () => {
     console.log("🔥 DEMO MODE: Calling KIRI API...");
 
+    const formData = new FormData();
+    formData.append("videoFile", file);
+
     try {
-      const res = await fetch("http://127.0.0.1:5000/kirk_api", {
+      const res = await fetch("http://127.0.0.1:5000/kiri_api", {
         method: "POST",
+        body: formData,
       });
 
       if (!res.ok) {
@@ -57,7 +61,7 @@ export default function UploadVideo() {
         onClick={handleUpload}
         className="mt-3 px-3 py-1 text-xs border border-white rounded hover:bg-white hover:text-black transition"
       >
-        Upload
+        Begin Model Creation
       </button>
 
       {/* Video Preview */}
