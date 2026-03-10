@@ -9,7 +9,7 @@ export default function UploadVideo() {
     setFile(selected);
     setVideoURL(URL.createObjectURL(selected));
   };
-  
+
   // DEMO VERSION: Only trigger KIRI API (NO file upload)
   const handleUpload = async () => {
     console.log("🔥 DEMO MODE: Calling KIRI API...");
@@ -30,7 +30,6 @@ export default function UploadVideo() {
 
       console.log("✅ KIRI API successfully triggered");
       alert("Model generation started! Check backend terminal.");
-
     } catch (err) {
       console.error("Error:", err);
     }
@@ -38,9 +37,11 @@ export default function UploadVideo() {
 
   return (
     <div className="rounded-xl border border-gray-600 bg-black p-4 shadow-sm text-white w-full">
-
       {/* Choose File */}
-      <label htmlFor="videoInput" className="font-mono text-sm cursor-pointer underline text-gray-400">
+      <label
+        htmlFor="videoInput"
+        className="font-mono text-sm cursor-pointer underline text-gray-400"
+      >
         Choose video
       </label>
 
@@ -67,6 +68,8 @@ export default function UploadVideo() {
       {/* Video Preview */}
       {videoURL && (
         <video
+          autoPlay
+          loop
           src={videoURL}
           controls
           className="mt-4 w-full rounded-lg border border-gray-700"

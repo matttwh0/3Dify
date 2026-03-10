@@ -10,6 +10,18 @@ kiri_bp = Blueprint("kiri_api", __name__, template_folder="templates")
 
 jobs = {}
 
+def poll_model(job_id,serialize, headers):
+    model_url = f'https://api.kiriengine.app/api/v1/open/model/getModelZip?serialize={serialize}'
+    while True:
+        resp = requests.get(model_url, headers=headers)
+        if resp.status_code==200 and resp.headers.get("Content-Type") == "applications/zip":
+            jobs[job_id] = {"status": "done", "downloadUrl": model_url}
+            print(f"Job {job_id} complete!")
+            return
+        else:
+            print(f"Job {job_id} not ready:", resp.json())
+            time.sleep(5)
+            
 @kiri_bp.route("/kiri_api", methods=["POST"])
 def generate_model():
     if "videoFile" not in request.files:
@@ -48,6 +60,7 @@ def generate_model():
     print(post.json())
 
     id = post.json()['data']['serialize']
+
     model_url = f'https://api.kiriengine.app/api/v1/open/model/getModelZip?serialize={id}'
     while True:
         resp = requests.get(model_url, headers=headers)
