@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 export default function UploadVideo() {
   const [file, setFile] = useState(null);
   const [videoURL, setVideoURL] = useState("");
+  const [status, setStatus] = useState("idle");
+  const [downloadUrl, setDownloadUrl] = useState(null);
+  const pollRef = useRef(null);
 
   const handleFileSelect = (e) => {
     const selected = e.target.files[0];
@@ -10,12 +13,15 @@ export default function UploadVideo() {
     setVideoURL(URL.createObjectURL(selected));
   };
 
-  // DEMO VERSION: Only trigger KIRI API (NO file upload)
   const handleUpload = async () => {
-    console.log("🔥 DEMO MODE: Calling KIRI API...");
+    if (!file) return;
+    setStatus("processing");
+    setDownloadUrl(null);
 
     const formData = new FormData();
     formData.append("videoFile", file);
+
+    let jobId;
 
     try {
       const res = await fetch("http://127.0.0.1:5000/kiri_api", {
@@ -23,57 +29,99 @@ export default function UploadVideo() {
         body: formData,
       });
 
-      if (!res.ok) {
-        console.error("❌ Backend call failed");
-        return;
-      }
+      if (!res.ok) { setStatus("error"); return; }
 
-      console.log("✅ KIRI API successfully triggered");
-      alert("Model generation started! Check backend terminal.");
+      const data = await res.json();
+      jobId = data.jobId;
     } catch (err) {
-      console.error("Error:", err);
+      console.error(err);
+      setStatus("error");
+      return;
     }
+
+    pollRef.current = setInterval(async () => {
+      try {
+        const poll = await fetch(`http://127.0.0.1:5000/kiri_progress/${jobId}`);
+        const data = await poll.json();
+
+        if (data.status === "done") {
+          clearInterval(pollRef.current);
+          setStatus("done");
+          setDownloadUrl(data.downloadUrl);
+        } else if (data.status === "error") {
+          clearInterval(pollRef.current);
+          setStatus("error");
+        }
+      } catch (err) {
+        console.error(err);
+        clearInterval(pollRef.current);
+        setStatus("error");
+      }
+    }, 6000);
   };
+
+  useEffect(() => () => clearInterval(pollRef.current), []);
 
   return (
     <div className="rounded-xl border border-gray-600 bg-black p-4 shadow-sm text-white w-full">
-      {/* Choose File */}
-      <label
-        htmlFor="videoInput"
-        className="font-mono text-sm cursor-pointer underline text-gray-400"
-      >
+      <label htmlFor="videoInput" className="font-mono text-sm cursor-pointer underline text-gray-400">
         Choose video
       </label>
 
-      <input
-        type="file"
-        accept="video/*"
-        id="videoInput"
-        className="sr-only"
-        onChange={handleFileSelect}
-      />
+      <input type="file" accept="video/*" id="videoInput" className="sr-only" onChange={handleFileSelect} />
 
       <div className="text-xs text-gray-400 mt-1">
         {file ? file.name : "No file selected"}
       </div>
 
-      {/* Upload Button = TRIGGERS CURL EQUIVALENT */}
       <button
         onClick={handleUpload}
-        className="mt-3 px-3 py-1 text-xs border border-white rounded hover:bg-white hover:text-black transition"
+        disabled={!file || status === "processing"}
+        className="mt-3 px-3 py-1 text-xs border border-white rounded hover:bg-white hover:text-black transition disabled:opacity-40 disabled:cursor-not-allowed"
       >
         Begin Model Creation
       </button>
 
+      {/* Status + Download box */}
+      {status !== "idle" && (
+        <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 flex items-center justify-between gap-4">
+          <div>
+            {status === "processing" && (
+              <div className="flex items-center gap-3">
+                <div className="h-3 w-3 rounded-full border-2 border-white/20 border-t-white animate-spin shrink-0" />
+                <div>
+                  <p className="text-xs font-mono text-white">Generating 3D model…</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">This usually takes around 30 minutes.</p>
+                </div>
+              </div>
+            )}
+            {status === "done" && (
+              <div>
+                <p className="text-xs font-mono text-green-400">✓ Model ready</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Your 3D model has been generated.</p>
+              </div>
+            )}
+            {status === "error" && (
+              <p className="text-xs text-red-400 font-mono">✕ Something went wrong. Please try again.</p>
+            )}
+          </div>
+
+          {/* Download button — grayed out until done */}
+          {status === "done" && downloadUrl ? (
+            <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className="text-xs px-4 py-2 rounded-md border border-green-500 text-green-400 hover:bg-green-500 hover:text-black transition shrink-0">
+              ↓ Download Model
+            </a>
+          ) : (
+            <button disabled className="text-xs px-4 py-2 rounded-md border border-gray-700 text-gray-600 cursor-not-allowed shrink-0">
+              ↓ Download Model
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Video Preview */}
       {videoURL && (
-        <video
-          autoPlay
-          loop
-          src={videoURL}
-          controls
-          className="mt-4 w-full rounded-lg border border-gray-700"
-        />
+        <video autoPlay loop src={videoURL} controls className="mt-4 w-full rounded-lg border border-gray-700" />
       )}
     </div>
   );
