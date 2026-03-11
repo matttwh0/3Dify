@@ -6,7 +6,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase"; // adjust path if needed
 import { signOut } from "firebase/auth";
 
-
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-black text-gray-100">
@@ -42,9 +41,9 @@ export default function LandingPage() {
 
 function SiteHeader() {
   const handleSignOut = async () => {
-  await signOut(auth);
-  setOpen(false);
-};
+    await signOut(auth);
+    setOpen(false);
+  };
 
   const [user, setUser] = useState(null);
   const [open, setOpen] = useState(false);
@@ -73,10 +72,18 @@ function SiteHeader() {
       </a>
 
       <nav className="hidden md:flex items-center gap-8 text-sm text-gray-300">
-        <a href="#about" className="hover:text-white">about us ▾</a>
-        <a href="#gallery" className="hover:text-white">gallery ▾</a>
-        <a href="#how" className="hover:text-white">how we work ▾</a>
-        <a href="/projects" className="hover:text-white">projects</a>
+        <a href="#about" className="hover:text-white">
+          about us ▾
+        </a>
+        <a href="#gallery" className="hover:text-white">
+          gallery ▾
+        </a>
+        <a href="#how" className="hover:text-white">
+          how we work ▾
+        </a>
+        <a href="/projects" className="hover:text-white">
+          projects
+        </a>
       </nav>
 
       <div className="flex items-center gap-2 relative" ref={menuRef}>
@@ -129,19 +136,25 @@ function SiteHeader() {
   );
 }
 
-
-
 /* ----------------------- HERO ----------------------- */
 
 function Hero() {
   return (
     <main className="max-w-6xl mx-auto px-4 pt-24 pb-28 md:pb-40">
-      <h1 className="font-mono font-semibold tracking-tight text-[56px] leading-none md:text-[96px]">3Dify</h1>
+      <h1 className="font-mono font-semibold tracking-tight text-[56px] leading-none md:text-[96px]">
+        3Dify
+      </h1>
       <p className="mt-6 max-w-xl text-gray-300 leading-relaxed">
-        Transform any video into a detailed 3D model — fast, accurate, and ready for use.
+        Transform any video into a detailed 3D model — fast, accurate, and ready
+        for use.
       </p>
       <div className="mt-8">
-        <a href="#try" className="inline-block text-xs uppercase tracking-widest px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300">Try 3Dify</a>
+        <a
+          href="#try"
+          className="inline-block text-xs uppercase tracking-widest px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
+        >
+          Try 3Dify
+        </a>
       </div>
 
       <div className="mt-16 w-full max-w-md h-60 md:h-[400px] rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
@@ -185,14 +198,23 @@ function GalleryPreview() {
     <div className="max-w-6xl mx-auto px-4 py-12 md:py-16">
       <div className="flex items-end justify-between mb-6">
         <h2 className="font-mono tracking-widest text-lg lowercase">gallery</h2>
-        <a href="/gallery" className="text-xs text-gray-400 hover:text-white">view full gallery →</a>
+        <a href="/gallery" className="text-xs text-gray-400 hover:text-white">
+          view full gallery →
+        </a>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {items.map((it) => (
-          <article key={it.id} className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]">
+          <article
+            key={it.id}
+            className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]"
+          >
             <div className="aspect-[4/5] bg-white/[0.04] overflow-hidden">
-              <img src={it.img} alt={it.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+              <img
+                src={it.img}
+                alt={it.title}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
             </div>
             <div className="px-3 py-2 border-t border-white/10">
               <p className="text-xs text-gray-200">{it.title}</p>
@@ -204,12 +226,17 @@ function GalleryPreview() {
 
       <div className="mt-10 md:mt-12 py-6 md:py-10 border-t border-white/10">
         <p className="max-w-3xl font-mono text-2xl md:text-4xl leading-tight">
-          3Dify uses AI to generate detailed 3D models from simple video inputs. It reconstructs depth, texture, and geometry with precision.
+          3Dify uses AI to generate detailed 3D models from simple video inputs.
+          It reconstructs depth, texture, and geometry with precision.
         </p>
       </div>
 
       <p className="mt-2 text-xs text-gray-400 max-w-2xl">
-        3Dify makes 3D modeling effortless. Transform any video into a shareable, realistic 3D model — no design experience required. <a href="#try" className="underline-offset-2 hover:underline">Try 3Dify →</a>
+        3Dify makes 3D modeling effortless. Transform any video into a
+        shareable, realistic 3D model — no design experience required.{" "}
+        <a href="#try" className="underline-offset-2 hover:underline">
+          Try 3Dify →
+        </a>
       </p>
     </div>
   );
@@ -238,10 +265,15 @@ function HowWeWork() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 md:py-16">
-      <h2 className="font-mono tracking-widest text-lg lowercase mb-6">how we work</h2>
+      <h2 className="font-mono tracking-widest text-lg lowercase mb-6">
+        how we work
+      </h2>
       <div className="grid gap-6 md:grid-cols-3">
         {steps.map((s) => (
-          <div key={s.k} className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
+          <div
+            key={s.k}
+            className="rounded-xl border border-white/10 bg-white/[0.02] p-5"
+          >
             <div className="text-xs text-gray-400 mb-1">{s.k}</div>
             <h3 className="text-lg mb-2">{s.title}</h3>
             <p className="text-sm text-gray-300">{s.desc}</p>
@@ -281,20 +313,26 @@ function CallToAction() {
   return (
     <section id="try" className="border-t border-white/10">
       <div className="max-w-6xl mx-auto px-4 py-12 md:py-16">
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6 md:p-8 flex flex-col gap-6">
           <div>
-            <h3 className="text-xl md:text-2xl font-mono">Ready to turn video into 3D?</h3>
-            <p className="text-sm text-gray-300 mt-1">Start with sample data or upload your own footage.</p>
+            <h3 className="text-xl md:text-2xl font-mono">
+              Ready to turn video into 3D?
+            </h3>
+            <p className="text-sm text-gray-300 mt-1">
+              Start with sample data or upload your own footage.
+            </p>
           </div>
 
-          <div className="flex gap-3">
-            {/* Replaced old button with upload component */}
-            <UploadVideo />
-
-            <button className="text-xs px-3 py-2 rounded-md border border-gray-600 hover:border-gray-300">
+          {/* Upload + Use sample side by side */}
+          <div className="flex items-start gap-3 ">
+            <div className="flex-1 w-full ">
+              <UploadVideo />
+            </div>
+            <button className="text-xs px-4 py-2 rounded-md border border-gray-600 hover:border-gray-300 shrink-0 self-stretch">
               Use sample
             </button>
           </div>
+          
         </div>
       </div>
     </section>
@@ -309,9 +347,15 @@ function Footer() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <p>© {new Date().getFullYear()} 3Dify</p>
         <nav className="flex gap-6">
-          <a href="#" className="hover:text-white">Privacy</a>
-          <a href="#" className="hover:text-white">Terms</a>
-          <a href="#" className="hover:text-white">Contact</a>
+          <a href="#" className="hover:text-white">
+            Privacy
+          </a>
+          <a href="#" className="hover:text-white">
+            Terms
+          </a>
+          <a href="#" className="hover:text-white">
+            Contact
+          </a>
         </nav>
       </div>
     </footer>
@@ -331,10 +375,30 @@ function Spinner() {
 
 function ImageIcon() {
   return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="opacity-60">
-      <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/>
-      <circle cx="8" cy="10" r="2" stroke="currentColor" strokeWidth="1.5"/>
-      <path d="M21 16l-5.5-5.5L9 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg
+      width="48"
+      height="48"
+      viewBox="0 0 24 24"
+      fill="none"
+      className="opacity-60"
+    >
+      <rect
+        x="3"
+        y="5"
+        width="18"
+        height="14"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <circle cx="8" cy="10" r="2" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M21 16l-5.5-5.5L9 17"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
