@@ -1,23 +1,41 @@
 import { collection, doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db, auth } from "../firebase";
+import { db, firebaseApp, storage } from "../firebase";
+import { ref, uploadBytesResumable } from "firebase/storage";
 
-export async function createScan({ name = "Untitled scan" } = {}) {
-  const user = auth.currentUser;
-  if (!user) throw new Error("Not signed in");
+export async function createScan({ uid, name = "Untitled scan" } = {}) {
+  console.log("createScan received:", uid, name);
 
-  const scanRef = doc(collection(db, "scans")); // auto-ID
+  if (!uid) throw new Error("Missing uid");
+
+  const scanRef = doc(collection(db, "scans"));
   const scanId = scanRef.id;
 
   await setDoc(scanRef, {
-    uid: user.uid,
+    uid,
     name,
     status: "created",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-    storagePath: `uploads/${user.uid}/${scanId}.mp4`,
+    storagePath: `uploads/${uid}/${scanId}.mp4`,
     kiriSerialize: null,
     kiriStatusCode: null,
   });
 
   return scanId;
+}
+export function uploadScanVideo({ file, storagePath, onProgress }) {
+  return new Promise((resolve, reject) => {
+    const storageRef = ref(storage, storagePath);
+    const task = uploadBytesResumable(storageRef, file);
+
+    task.on(
+      "state_changed",
+      (snap) => {
+        const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
+        onProgress?.(pct);
+      },
+      reject,
+      () => resolve()
+    );
+  });
 }
