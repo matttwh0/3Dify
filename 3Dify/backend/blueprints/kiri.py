@@ -28,20 +28,124 @@ def poll_model_mock(job_id):
     }
     print(f"Mock job {job_id} complete!")
     
-def poll_model(job_id, serialize, headers):
+def poll_model(scan_id,job_id, serialize, headers):
+    db = firestore.client()
+    bucket = storage.bucket()
+    scan_ref = db.collection("scans").document(scan_id)
     model_url = f'https://api.kiriengine.app/api/v1/open/model/getModelZip?serialize={serialize}'
-    while True:
-        resp = requests.get(model_url, headers=headers)
-        body = resp.json()
+    try:
+        while True:
+            resp = requests.get(model_url, headers=headers, timeout=60)
+            body = resp.json()
 
-        if body.get("code") == 0 and body.get("data", {}).get("modelUrl"):
-            download_url = body["data"]["modelUrl"]
-            jobs[job_id] = {"status": "done", "downloadUrl": download_url}
-            print(f"Job {job_id} complete! URL: {download_url}")
-            return
-        else:
-            print(f"Job {job_id} not ready:", body)
-            time.sleep(5)
+            print(f"Polling scan {scan_id}: {body}")
+
+            code = body.get("code")
+            data = body.get("data") or {}
+            download_url = data.get("modelUrl")
+
+            if body.get("ok") and download_url:
+                print(f"Job {job_id} complete, downloading zip from KIRI...")
+
+                # Get scan info so we know where to store the result
+                scan_snap = scan_ref.get()
+                if not scan_snap.exists:
+                    print(f"Scan doc {scan_id} not found")
+                    return
+
+                scan_data = scan_snap.to_dict()
+                uid = scan_data.get("uid")
+                if not uid:
+                    scan_ref.update({
+                        "status": "failed",
+                        "error": "Missing uid on scan document",
+                        "updatedAt": firestore.SERVER_TIMESTAMP,
+                    })
+                    return
+
+                result_path = f"models/{uid}/{scan_id}/model.zip"
+                blob = bucket.blob(result_path)
+
+                # Stream the KIRI zip directly into Firebase Storage
+                with requests.get(download_url, stream=True, timeout=120) as r:
+                    r.raise_for_status()
+                    blob.upload_from_file(r.raw, content_type="application/zip")
+
+                scan_ref.update({
+                    "status": "done",
+                    "resultPath": result_path,
+                    "updatedAt": firestore.SERVER_TIMESTAMP,
+                })
+
+                jobs[job_id] = {
+                    "status": "done",
+                    "resultPath": result_path,
+                }
+
+                print(f"Saved model for scan {scan_id} to {result_path}")
+                return
+
+            elif code in (2000, 2008):
+                # still processing or queued
+                scan_ref.update({
+                    "status": "processing",
+                    "updatedAt": firestore.SERVER_TIMESTAMP,
+                })
+
+                jobs[job_id] = {
+                    "status": "processing",
+                    "resultPath": None,
+                    "scanId": scan_id,
+                }
+                time.sleep(5)
+
+            else:
+                error_msg = f"Unexpected KIRI response: {body}"
+                print(error_msg)
+
+                scan_ref.update({
+                    "status": "failed",
+                    "kiriStatusCode": code,
+                    "kiriResponse": body,
+                    "error": error_msg,
+                    "updatedAt": firestore.SERVER_TIMESTAMP,
+                })
+
+                jobs[job_id] = {
+                    "status": "failed",
+                    "error": error_msg,
+                }
+                return
+
+    except requests.exceptions.ReadTimeout:
+        print(f"Polling timeout for {scan_id}, retrying...")
+        scan_ref.update({
+            "status": "processing",
+            "updatedAt": firestore.SERVER_TIMESTAMP,
+        })
+
+        jobs[job_id] = {
+            "status": "processing",
+            "resultPath": None,
+            "scanId": scan_id,
+        }
+
+        time.sleep(10)
+
+    except Exception as e:
+        print(f"Polling error for {scan_id}: {e}")
+
+        scan_ref.update({
+            "status": "failed",
+            "error": str(e),
+            "updatedAt": firestore.SERVER_TIMESTAMP,
+        })
+
+        jobs[job_id] = {
+            "status": "failed",
+            "error": str(e),
+            "scanId": scan_id,
+        }
 
             
 @cross_origin(origins=["http://localhost:5173", "http://127.0.0.1:5173"])
@@ -54,6 +158,7 @@ def generate_model():
     bucket = storage.bucket()
 
     temp_path = None
+    scan_id = None
 
     try:
         data = request.get_json()
@@ -71,7 +176,7 @@ def generate_model():
         blob.download_to_filename(temp_path)
         print(f"Downloaded {storage_path} to {temp_path}")
 
-        api_key = ""
+        api_key = "kiri_fugZOREefvt60h0gUPbVLx0v0qRJWYXeo0v6R0ArY-Q"
         headers = {"Authorization": f"Bearer {api_key}"}
 
         url = "https://api.kiriengine.app/api/v1/open/3dgs/video"
@@ -86,6 +191,11 @@ def generate_model():
         print("KIRI raw response:", post.text)
 
         if not post.ok:
+            db.collection("scans").document(scan_id).update({
+                "status": "failed",
+                "error": post.text,
+                "updatedAt": firestore.SERVER_TIMESTAMP,
+            })
             return jsonify({
                 "error": "Kiri API failed",
                 "status_code": post.status_code,
@@ -95,20 +205,32 @@ def generate_model():
         body = post.json()
         print("Parsed KIRI body:", body)
 
-        serialize = body["data"]["serialize"]
+        serialize = body.get("data", {}).get("serialize")
+        if not serialize:
+            db.collection("scans").document(scan_id).update({
+                "status": "failed",
+                "error": "Missing serialize in KIRI response",
+                "kiriResponse": body,
+                "updatedAt": firestore.SERVER_TIMESTAMP,
+            })
+            return jsonify({
+                "error": "Missing serialize in KIRI response",
+                "details": body
+            }), 500
         job_id = serialize
 
         db.collection("scans").document(scan_id).update({
             "status": "processing",
             "kiriSerialize": serialize,
             "kiriStatusCode": body.get("code"),
+            "updatedAt": firestore.SERVER_TIMESTAMP,
         })
 
         print("Saved KIRI serialize to Firestore:", serialize)
 
-        jobs[job_id] = {"status": "processing", "downloadUrl": None}
+        jobs[job_id] = {"status": "processing", "resultPath": None, "scanId": scan_id}
 
-        thread = threading.Thread(target=poll_model, args=(job_id, serialize, headers))
+        thread = threading.Thread(target=poll_model, args=(scan_id, job_id, serialize, headers))
         thread.daemon = True
         thread.start()
 
@@ -116,6 +238,15 @@ def generate_model():
 
     except Exception as e:
         print("ERROR in /kiri_api:", repr(e))
+        if scan_id:
+            try:
+                db.collection("scans").document(scan_id).update({
+                    "status": "failed",
+                    "error": str(e),
+                    "updatedAt": firestore.SERVER_TIMESTAMP,
+                })
+            except Exception:
+                pass
         return jsonify({"error": str(e)}), 500
 
     finally:
@@ -131,3 +262,43 @@ def get_progress(job_id):
         return jsonify({"error": "Job not found"}), 404
     return jsonify(job)
 
+
+@kiri_bp.route("/resume_kiri/<scan_id>", methods=["POST"])
+def resume_kiri(scan_id):
+    db = firestore.client()
+    scan_ref = db.collection("scans").document(scan_id)
+    scan_snap = scan_ref.get()
+
+    if not scan_snap.exists:
+        return jsonify({"error": "Scan not found"}), 404
+
+    scan_data = scan_snap.to_dict()
+    serialize = scan_data.get("kiriSerialize")
+
+    if not serialize:
+        return jsonify({"error": "No kiriSerialize found for this scan"}), 400
+
+    api_key = ""
+    headers = {"Authorization": f"Bearer {api_key}"}
+
+    job_id = serialize
+
+    jobs[job_id] = {
+        "status": "processing",
+        "resultPath": scan_data.get("resultPath"),
+        "scanId": scan_id,
+    }
+
+    thread = threading.Thread(
+        target=poll_model,
+        args=(scan_id, job_id, serialize, headers),
+    )
+    thread.daemon = True
+    thread.start()
+
+    return jsonify({
+        "message": "Polling resumed",
+        "scanId": scan_id,
+        "jobId": job_id,
+        "serialize": serialize,
+    }), 200
