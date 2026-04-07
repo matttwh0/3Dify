@@ -6,9 +6,7 @@ import os
 from firebase_admin import storage
 from flask_cors import cross_origin
 from flask_cors import CORS
-
-
-
+from .services.model_processing import extract_and_upload_assets
 
 
 #base URL : https://api.kiriengine.app/api/
@@ -67,15 +65,19 @@ def poll_model(scan_id,job_id, serialize, headers):
                 blob = bucket.blob(result_path)
 
                 # Stream the KIRI zip directly into Firebase Storage
+
                 with requests.get(download_url, stream=True, timeout=120) as r:
                     r.raise_for_status()
                     blob.upload_from_file(r.raw, content_type="application/zip")
 
+                extract_and_upload_assets(bucket, scan_ref, uid, scan_id, result_path)
+
+                # Then mark done
                 scan_ref.update({
                     "status": "done",
                     "resultPath": result_path,
                     "updatedAt": firestore.SERVER_TIMESTAMP,
-                })
+})
 
                 jobs[job_id] = {
                     "status": "done",
@@ -302,3 +304,40 @@ def resume_kiri(scan_id):
         "jobId": job_id,
         "serialize": serialize,
     }), 200
+
+
+@kiri_bp.route("/test_process_existing_zip", methods=["POST"])
+def test_process_existing_zip():
+    db = firestore.client()
+    bucket = storage.bucket()
+
+    try:
+        data = request.get_json()
+        scan_id = data.get("scanId")
+        uid = data.get("uid")
+        local_zip_path = data.get("localZipPath")
+
+        if not scan_id or not uid or not local_zip_path:
+            return jsonify({"error": "Missing scanId, uid, or localZipPath"}), 400
+
+        scan_ref = db.collection("scans").document(scan_id)
+
+        result_path = f"models/{uid}/{scan_id}/model.zip"
+        blob = bucket.blob(result_path)
+        blob.upload_from_filename(local_zip_path, content_type="application/zip")
+
+        extract_and_upload_assets(bucket, scan_ref, uid, scan_id, result_path)
+
+        scan_ref.update({
+            "status": "done",
+            "resultPath": result_path,
+            "updatedAt": firestore.SERVER_TIMESTAMP,
+        })
+
+        return jsonify({
+            "message": "Test zip processed successfully",
+            "resultPath": result_path,
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
