@@ -116,7 +116,7 @@ export default function UploadVideo() {
       try {
         const poll = await fetch(`http://127.0.0.1:5000/kiri_progress/${jobId}`);
         const data = await poll.json();
-
+        console.log("Poll response:", data);
         if (data.status === "done") {
           clearInterval(pollRef.current);
           setStatus("done");

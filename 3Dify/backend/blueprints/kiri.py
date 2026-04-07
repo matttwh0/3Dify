@@ -1,4 +1,4 @@
-import requests, time, threading
+import requests, time, threading, uuid
 from fastapi import HTTPException
 from flask import Blueprint, request, jsonify 
 from firebase_admin import firestore
@@ -18,13 +18,32 @@ jobs = {}
 MOCK_MODE = False #set to false to use actual API
 
 def poll_model_mock(job_id):
-    """Simulates a 20 second processing delay then marks job done"""
-    time.sleep(20)
+    """Simulates Kiri's queue → processing → done stages"""
+    # Stage 1: in queue (10 seconds)
+    time.sleep(10)
+    jobs[job_id]["kiri_status"] = "processing"
+    print(f"Mock job {job_id}: now processing")
+
+    # Stage 2: processing (15 more seconds)
+    time.sleep(15)
+
+    # Stage 3: done — mimic exact Kiri success response
+    fake_download_url = "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-zip-file.zip"
     jobs[job_id] = {
         "status": "done",
-        "downloadUrl": "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-zip-file.zip"  # fake zip
+        "downloadUrl": fake_download_url,
+        "kiri_response": {
+            "code": 0,
+            "msg": "success",
+            "data": {
+                "modelUrl": fake_download_url,
+                "serialize": job_id,
+            },
+            "ok": True
+        }
     }
     print(f"Mock job {job_id} complete!")
+
     
 def poll_model(scan_id,job_id, serialize, headers):
     db = firestore.client()
@@ -158,6 +177,42 @@ def generate_model():
 
     db = firestore.client()
     bucket = storage.bucket()
+    if MOCK_MODE:
+        fake_serialize = uuid.uuid4().hex
+
+        # Mimic exact Kiri POST response format
+        jobs[fake_serialize] = {
+            "status": "processing",
+            "downloadUrl": None,
+            "kiri_status": "queued",
+            "kiri_response": {
+                "code": 0,
+                "msg": "success",
+                "data": {
+                    "serialize": fake_serialize
+                },
+                "ok": True
+            }
+        }
+
+        thread = threading.Thread(target=poll_model_mock, args=(fake_serialize,))
+        thread.daemon = True
+        thread.start()
+
+        print(f"Mock job started: {fake_serialize}")
+        # Return same format as real Kiri POST response
+        return jsonify({
+            "jobId": fake_serialize,
+            "kiri_response": {
+                "code": 0,
+                "msg": "success",
+                "data": {"serialize": fake_serialize},
+                "ok": True
+            }
+        })
+    video = request.files['videoFile']
+    temp_path = 'temp.mp4'
+    video.save(temp_path)
 
     temp_path = None
     scan_id = None
