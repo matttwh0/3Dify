@@ -1,7 +1,7 @@
 import UploadVideo from "../components/UploadVideo";
 import ModelViewer from "../components/ModelViewer";
 import { useAuth } from "../context/AuthContext";
-
+import { Link } from "react-router-dom";
 
 export default function LandingPage() {
   return (
@@ -37,48 +37,73 @@ export default function LandingPage() {
 /* ----------------------- HEADER ----------------------- */
 
 function SiteHeader() {
+  const { user } = useAuth();
+
   return (
     <header className="max-w-6xl mx-auto flex items-center justify-between px-4 py-4">
-      <a href="/" className="font-mono text-lg tracking-widest">
+      
+      {/* LOGO */}
+      <Link to="/" className="font-mono text-lg tracking-widest">
         3Dify
-      </a>
+      </Link>
 
+      {/* NAV LINKS */}
       <nav className="hidden md:flex items-center gap-8 text-sm text-gray-300">
         <a href="#about" className="hover:text-white">
           about us ▾
         </a>
-        <a href="#gallery" className="hover:text-white">
-          gallery ▾
-        </a>
+
+        <Link to="/gallery" className="hover:text-white">
+          gallery
+        </Link>
+
         <a href="#how" className="hover:text-white">
           how we work ▾
         </a>
 
-        {/* ALWAYS VISIBLE */}
-        <a href="/projects" className="hover:text-white">
+        <Link to="/projects" className="hover:text-white">
           projects
-        </a>
+        </Link>
       </nav>
 
-      <div className="flex items-center gap-2">
-        <a
-          href="/signin"
-          className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
-        >
-          Sign in
-        </a>
+      {/* RIGHT SIDE */}
+      <div className="flex items-center gap-3">
 
-        <a
-          href="/register"
-          className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
+        {/* CREATE BUTTON (smart routing) */}
+        <Link
+          to={user ? "/create" : "/signin"}
+          className="text-xs px-3 py-1 rounded-md border border-white hover:bg-white hover:text-black transition"
         >
-          Register
-        </a>
+          + create
+        </Link>
+
+        {/* AUTH BUTTONS */}
+        {!user ? (
+          <>
+            <Link
+              to="/signin"
+              className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
+            >
+              Sign in
+            </Link>
+
+            <Link
+              to="/register"
+              className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
+            >
+              Register
+            </Link>
+          </>
+        ) : (
+          <span className="text-xs text-gray-400">
+            signed in
+          </span>
+        )}
+
       </div>
     </header>
   );
 }
-
 
 /* ----------------------- HERO ----------------------- */
 
@@ -134,7 +159,10 @@ function GalleryPreview() {
     <div className="max-w-6xl mx-auto px-4 py-12 md:py-16">
       <div className="flex items-end justify-between mb-6">
         <h2 className="font-mono tracking-widest text-lg lowercase">gallery</h2>
-        <a href="/gallery" className="text-xs text-gray-400 hover:text-white">view full gallery →</a>
+
+        <Link to="/gallery" className="text-xs text-gray-400 hover:text-white">
+          view full gallery →
+        </Link>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -150,16 +178,6 @@ function GalleryPreview() {
           </article>
         ))}
       </div>
-
-      <div className="mt-10 md:mt-12 py-6 md:py-10 border-t border-white/10">
-        <p className="max-w-3xl font-mono text-2xl md:text-4xl leading-tight">
-          3Dify uses AI to generate detailed 3D models from simple video inputs. It reconstructs depth, texture, and geometry with precision.
-        </p>
-      </div>
-
-      <p className="mt-2 text-xs text-gray-400 max-w-2xl">
-        3Dify makes 3D modeling effortless. Transform any video into a shareable, realistic 3D model — no design experience required. <a href="#try" className="underline-offset-2 hover:underline">Try 3Dify →</a>
-      </p>
     </div>
   );
 }
@@ -168,21 +186,9 @@ function GalleryPreview() {
 
 function HowWeWork() {
   const steps = [
-    {
-      k: "01",
-      title: "Upload video",
-      desc: "Record a slow 360° sweep on your phone and upload it.",
-    },
-    {
-      k: "02",
-      title: "AI reconstruction",
-      desc: "Our pipeline estimates depth and mesh from frames and fuses them.",
-    },
-    {
-      k: "03",
-      title: "Export & share",
-      desc: "Download glTF/OBJ or view in your gallery with a share link.",
-    },
+    { k: "01", title: "Upload video", desc: "Record a slow 360° sweep on your phone and upload it." },
+    { k: "02", title: "AI reconstruction", desc: "Our pipeline estimates depth and mesh from frames and fuses them." },
+    { k: "03", title: "Export & share", desc: "Download glTF/OBJ or view in your gallery with a share link." },
   ];
 
   return (
@@ -224,7 +230,7 @@ function BeforeAfter() {
   );
 }
 
-/* ----------------------- CALL TO ACTION ----------------------- */
+/* ----------------------- CTA ----------------------- */
 
 function CallToAction() {
   return (
@@ -237,9 +243,7 @@ function CallToAction() {
           </div>
 
           <div className="flex gap-3">
-            {/* Replaced old button with upload component */}
             <UploadVideo />
-
             <button className="text-xs px-3 py-2 rounded-md border border-gray-600 hover:border-gray-300">
               Use sample
             </button>
@@ -267,7 +271,7 @@ function Footer() {
   );
 }
 
-/* ----------------------- SMALL UI PIECES ----------------------- */
+/* ----------------------- SMALL UI ----------------------- */
 
 function Spinner() {
   return (
@@ -275,15 +279,5 @@ function Spinner() {
       <div className="h-3 w-3 rounded-full border-2 border-white/20 border-t-white animate-spin" />
       <span className="text-xs">processing…</span>
     </div>
-  );
-}
-
-function ImageIcon() {
-  return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="opacity-60">
-      <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/>
-      <circle cx="8" cy="10" r="2" stroke="currentColor" strokeWidth="1.5"/>
-      <path d="M21 16l-5.5-5.5L9 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
   );
 }
