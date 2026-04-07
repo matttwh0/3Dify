@@ -1,5 +1,6 @@
 import UploadVideo from "../components/UploadVideo";
 import ModelViewer from "../components/ModelViewer";
+import ModelThumbnail from "../components/ModelThumbnail";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState, useRef } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -157,9 +158,6 @@ function Hero() {
         </a>
       </div>
 
-      <div className="mt-16 w-full max-w-md h-60 md:h-[400px] rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
-        <ModelViewer />
-      </div>
     </main>
   );
 }
@@ -167,31 +165,12 @@ function Hero() {
 /* ----------------------- GALLERY ----------------------- */
 
 function GalleryPreview() {
+  const [activeModel, setActiveModel] = useState(null);
+
   const items = [
-    {
-      id: 1,
-      img: "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format&fit=crop",
-      title: "brief description",
-      date: "Nov 5, 2022",
-    },
-    {
-      id: 2,
-      img: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1200&auto=format&fit=crop",
-      title: "brief description",
-      date: "Jul 14, 2022",
-    },
-    {
-      id: 3,
-      img: "https://images.unsplash.com/photo-1542626991-1b3d3b09122d?q=80&w=1200&auto=format&fit=crop",
-      title: "brief description",
-      date: "Sep 26, 2022",
-    },
-    {
-      id: 4,
-      img: "https://images.unsplash.com/photo-1544551763-7ef420be2d4e?q=80&w=1200&auto=format&fit=crop",
-      title: "brief description",
-      date: "Aug 13, 2022",
-    },
+    { id: 1, folder: "/models/integra",  title: "Integra",  date: "Nov 5, 2022" },
+    { id: 2, folder: "/models/kakashi",  title: "Kakashi",  date: "Jul 14, 2022" },
+    { id: 3, folder: "/models/souvenir", title: "Souvenir", date: "Sep 26, 2022" },
   ];
 
   return (
@@ -203,22 +182,47 @@ function GalleryPreview() {
         </a>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Expanded 3D viewer (shown when a card is clicked) */}
+      {activeModel && (
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
+            <p className="text-sm text-gray-200">{activeModel.title}</p>
+            <button
+              onClick={() => setActiveModel(null)}
+              className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded border border-white/10 hover:border-white/30"
+            >
+              ✕ Close
+            </button>
+          </div>
+          <div className="h-72 md:h-[420px]">
+            <ModelViewer key={activeModel.id} modelFolder={activeModel.folder} />
+          </div>
+        </div>
+      )}
+
+      {/* Thumbnail grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {items.map((it) => (
           <article
             key={it.id}
-            className="group overflow-hidden rounded-lg border border-white/10 bg-white/[0.02]"
+            onClick={() => setActiveModel(it)}
+            className="group cursor-pointer overflow-hidden rounded-lg border border-white/10 bg-white/[0.02] transition-colors hover:border-white/30"
           >
-            <div className="aspect-[4/5] bg-white/[0.04] overflow-hidden">
-              <img
-                src={it.img}
+            <div className="aspect-[4/3] bg-white/[0.04] overflow-hidden">
+              <ModelThumbnail
+                modelFolder={it.folder}
                 alt={it.title}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="h-full w-full object-cover"
               />
             </div>
-            <div className="px-3 py-2 border-t border-white/10">
-              <p className="text-xs text-gray-200">{it.title}</p>
-              <p className="text-[10px] text-gray-400">{it.date}</p>
+            <div className="px-3 py-2 border-t border-white/10 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-gray-200">{it.title}</p>
+                <p className="text-[10px] text-gray-400">{it.date}</p>
+              </div>
+              <span className="text-[10px] text-gray-500 group-hover:text-gray-300 transition-colors">
+                View 3D →
+              </span>
             </div>
           </article>
         ))}
