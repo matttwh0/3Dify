@@ -7,6 +7,8 @@ import {
     onAuthStateChanged
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+
 
 
 const firebaseConfig = {
@@ -25,7 +27,7 @@ const auth = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
 // connectAuthEmulator(auth, "http://localhost:9099");
 
-
+export const storage = getStorage(firebaseApp)
 
 export { auth, firebaseApp };
 
