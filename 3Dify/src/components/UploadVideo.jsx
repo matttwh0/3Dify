@@ -1,27 +1,100 @@
 import React, { useState, useEffect, useRef } from "react";
-
+import { createScan,uploadScanVideo } from "../services/scans";
+import { useAuth } from "../context/AuthContext";
+import { auth } from "../firebase";
+import { doc, updateDoc,serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase";
 export default function UploadVideo() {
+  const pollRef = useRef(null);
+  const { user } = useAuth();
   const [file, setFile] = useState(null);
   const [videoURL, setVideoURL] = useState("");
-  const [status, setStatus] = useState("idle");
-  const [downloadUrl, setDownloadUrl] = useState(null);
-  const pollRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+
+
+  const handleClick = async () => {
+  console.log("AuthContext user:", user);
+
+  if (!user?.uid) {
+    console.error("No user/uid yet. Signed in?", user);
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    console.log("currentUser:", user?.uid);
+
+    if (!file) throw new Error("No file selected");
+
+    //Create scan
+    const scanId = await createScan({
+      uid: user.uid,
+      name: file.name || "New scan",
+    });
+
+    console.log("Created scanId:", scanId);
+
+    const storagePath = `uploads/${user.uid}/${scanId}.mp4`;
+
+    //Upload video
+    await uploadScanVideo({
+      file,
+      storagePath,
+      onProgress: (pct) => {
+        console.log("Upload progress:", pct);
+      },
+    });
+
+    console.log("Upload complete");
+
+    //Update Firestore status
+    await updateDoc(doc(db, "scans", scanId), {
+      status: "uploaded",
+      updatedAt: serverTimestamp(),
+    });
+
+    //Tell backend to send Firebase file to KIRI
+    const res = await fetch("http://127.0.0.1:5000/kiri_api", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        scanId,
+        storagePath,
+      }),
+    });
+
+    const result = await res.json();
+    console.log("KIRI result:", result);
+
+    if (!res.ok) {
+      throw new Error(result.error || "Failed to start KIRI job");
+    }
+
+    alert(`Upload complete for scanId: ${scanId}`);
+  } catch (e) {
+    console.error(e);
+    alert(e?.message || "Failed to create/upload scan");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleFileSelect = (e) => {
     const selected = e.target.files[0];
     setFile(selected);
     setVideoURL(URL.createObjectURL(selected));
   };
-
+  
+  // DEMO VERSION: Only trigger KIRI API (NO file upload)
   const handleUpload = async () => {
-    if (!file) return;
-    setStatus("processing");
-    setDownloadUrl(null);
+    console.log("🔥 DEMO MODE: Calling KIRI API...");
 
     const formData = new FormData();
     formData.append("videoFile", file);
-
-    let jobId;
 
     try {
       const res = await fetch("http://127.0.0.1:5000/kiri_api", {
@@ -75,9 +148,8 @@ export default function UploadVideo() {
       </div>
 
       <button
-        onClick={handleUpload}
-        disabled={!file || status === "processing"}
-        className="mt-3 px-3 py-1 text-xs border border-white rounded hover:bg-white hover:text-black transition disabled:opacity-40 disabled:cursor-not-allowed"
+        onClick={handleClick}
+        className="mt-3 px-3 py-1 text-xs border border-white rounded hover:bg-white hover:text-black transition"
       >
         Begin Model Creation
       </button>
