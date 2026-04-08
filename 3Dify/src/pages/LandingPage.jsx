@@ -2,6 +2,7 @@ import UploadVideo from "../components/UploadVideo";
 import ModelViewer from "../components/ModelViewer";
 import ModelThumbnail from "../components/ModelThumbnail";
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase"; // adjust path if needed
@@ -68,70 +69,65 @@ function SiteHeader() {
 
   return (
     <header className="max-w-6xl mx-auto flex items-center justify-between px-4 py-4">
-      <a href="/" className="font-mono text-lg tracking-widest">
+      
+      {/* LOGO */}
+      <Link to="/" className="font-mono text-lg tracking-widest">
         3Dify
-      </a>
+      </Link>
 
+      {/* NAV LINKS */}
       <nav className="hidden md:flex items-center gap-8 text-sm text-gray-300">
         <a href="#about" className="hover:text-white">
           about us ▾
         </a>
-        <a href="#gallery" className="hover:text-white">
-          gallery ▾
-        </a>
+
+        <Link to="/gallery" className="hover:text-white">
+          gallery
+        </Link>
+
         <a href="#how" className="hover:text-white">
           how we work ▾
         </a>
-        <a href="/projects" className="hover:text-white">
+
+        <Link to="/projects" className="hover:text-white">
           projects
-        </a>
+        </Link>
       </nav>
 
-      <div className="flex items-center gap-2 relative" ref={menuRef}>
+      {/* RIGHT SIDE */}
+      <div className="flex items-center gap-3">
+
+        {/* CREATE BUTTON (smart routing) */}
+        <Link
+          to={user ? "/create" : "/signin"}
+          className="text-xs px-3 py-1 rounded-md border border-white hover:bg-white hover:text-black transition"
+        >
+          + create
+        </Link>
+
+        {/* AUTH BUTTONS */}
         {!user ? (
           <>
-            <a
-              href="/signin"
+            <Link
+              to="/signin"
               className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
             >
               Sign in
-            </a>
+            </Link>
 
-            <a
-              href="/register"
+            <Link
+              to="/register"
               className="text-xs px-3 py-1 rounded-md border border-gray-600 hover:border-gray-300"
             >
               Register
-            </a>
+            </Link>
           </>
         ) : (
-          <>
-            <button onClick={() => setOpen(!open)}>
-              <img
-                src={user.photoURL || "/default-avatar.png"}
-                alt="Profile"
-                className="w-8 h-8 rounded-full border border-gray-600 hover:border-white"
-              />
-            </button>
-
-            {open && (
-              <div className="absolute right-0 top-12 w-40 bg-black border border-gray-700 rounded-md shadow-lg text-sm">
-                <a
-                  href="/profile"
-                  className="block px-4 py-2 hover:bg-gray-800"
-                >
-                  View profile
-                </a>
-                <button
-                  onClick={() => handleSignOut(auth)}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-800"
-                >
-                  Sign out
-                </button>
-              </div>
-            )}
-          </>
+          <span className="text-xs text-gray-400">
+            signed in
+          </span>
         )}
+
       </div>
     </header>
   );
@@ -177,9 +173,10 @@ function GalleryPreview() {
     <div className="max-w-6xl mx-auto px-4 py-12 md:py-16">
       <div className="flex items-end justify-between mb-6">
         <h2 className="font-mono tracking-widest text-lg lowercase">gallery</h2>
-        <a href="/gallery" className="text-xs text-gray-400 hover:text-white">
+
+        <Link to="/gallery" className="text-xs text-gray-400 hover:text-white">
           view full gallery →
-        </a>
+        </Link>
       </div>
 
       {/* Expanded 3D viewer (shown when a card is clicked) */}
@@ -250,21 +247,9 @@ function GalleryPreview() {
 
 function HowWeWork() {
   const steps = [
-    {
-      k: "01",
-      title: "Upload video",
-      desc: "Record a slow 360° sweep on your phone and upload it.",
-    },
-    {
-      k: "02",
-      title: "AI reconstruction",
-      desc: "Our pipeline estimates depth and mesh from frames and fuses them.",
-    },
-    {
-      k: "03",
-      title: "Export & share",
-      desc: "Download glTF/OBJ or view in your gallery with a share link.",
-    },
+    { k: "01", title: "Upload video", desc: "Record a slow 360° sweep on your phone and upload it." },
+    { k: "02", title: "AI reconstruction", desc: "Our pipeline estimates depth and mesh from frames and fuses them." },
+    { k: "03", title: "Export & share", desc: "Download glTF/OBJ or view in your gallery with a share link." },
   ];
 
   return (
@@ -311,7 +296,7 @@ function BeforeAfter() {
   );
 }
 
-/* ----------------------- CALL TO ACTION ----------------------- */
+/* ----------------------- CTA ----------------------- */
 
 function CallToAction() {
   return (
@@ -366,7 +351,7 @@ function Footer() {
   );
 }
 
-/* ----------------------- SMALL UI PIECES ----------------------- */
+/* ----------------------- SMALL UI ----------------------- */
 
 function Spinner() {
   return (
