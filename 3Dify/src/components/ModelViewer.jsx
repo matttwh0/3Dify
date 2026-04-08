@@ -23,7 +23,7 @@ export default function ModelViewer({ modelFolder = '/models/integra', scale = 7
     const height = container.clientHeight || 400
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x1a1a2e)
+    scene.background = new THREE.Color(0x494f54)
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000)
     camera.position.z = 5
 

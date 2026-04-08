@@ -1,12 +1,16 @@
 import requests, time, threading, uuid
-from fastapi import HTTPException
-from flask import Blueprint, request, jsonify 
+from datetime import timedelta
+from flask import Blueprint, request, jsonify
 from firebase_admin import firestore
 import os
+import google.oauth2.service_account
 from firebase_admin import storage
 from flask_cors import cross_origin
 from flask_cors import CORS
 from .services.model_processing import extract_and_upload_assets
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SERVICE_ACCOUNT_PATH = os.path.join(BASE_DIR, "serviceAccountKey.json")
 
 
 #base URL : https://api.kiriengine.app/api/
@@ -15,7 +19,7 @@ from .services.model_processing import extract_and_upload_assets
 kiri_bp = Blueprint("kiri_api", __name__, template_folder="templates")
 
 jobs = {}
-MOCK_MODE = False #set to false to use actual API
+MOCK_MODE = True #set to false to use actual API
 
 def poll_model_mock(job_id):
     """Simulates Kiri's queue → processing → done stages"""
@@ -91,16 +95,29 @@ def poll_model(scan_id,job_id, serialize, headers):
 
                 extract_and_upload_assets(bucket, scan_ref, uid, scan_id, result_path)
 
+                # Generate a signed download URL (valid 24 hours)
+                sa_creds = google.oauth2.service_account.Credentials.from_service_account_file(
+                    SERVICE_ACCOUNT_PATH,
+                    scopes=["https://www.googleapis.com/auth/cloud-platform"]
+                )
+                signed_url = blob.generate_signed_url(
+                    expiration=timedelta(hours=24),
+                    method="GET",
+                    version="v4",
+                    credentials=sa_creds,
+                )
+
                 # Then mark done
                 scan_ref.update({
                     "status": "done",
                     "resultPath": result_path,
                     "updatedAt": firestore.SERVER_TIMESTAMP,
-})
+                })
 
                 jobs[job_id] = {
                     "status": "done",
                     "resultPath": result_path,
+                    "downloadUrl": signed_url,
                 }
 
                 print(f"Saved model for scan {scan_id} to {result_path}")
@@ -210,10 +227,6 @@ def generate_model():
                 "ok": True
             }
         })
-    video = request.files['videoFile']
-    temp_path = 'temp.mp4'
-    video.save(temp_path)
-
     temp_path = None
     scan_id = None
 

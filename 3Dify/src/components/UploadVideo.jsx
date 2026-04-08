@@ -10,6 +10,8 @@ export default function UploadVideo() {
   const [file, setFile] = useState(null);
   const [videoURL, setVideoURL] = useState("");
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("idle");
+  const [downloadUrl, setDownloadUrl] = useState(null);
 
 
   const handleClick = async () => {
@@ -73,44 +75,8 @@ export default function UploadVideo() {
       throw new Error(result.error || "Failed to start KIRI job");
     }
 
-    alert(`Upload complete for scanId: ${scanId}`);
-  } catch (e) {
-    console.error(e);
-    alert(e?.message || "Failed to create/upload scan");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  const handleFileSelect = (e) => {
-    const selected = e.target.files[0];
-    setFile(selected);
-    setVideoURL(URL.createObjectURL(selected));
-  };
-  
-  // DEMO VERSION: Only trigger KIRI API (NO file upload)
-  const handleUpload = async () => {
-    console.log("🔥 DEMO MODE: Calling KIRI API...");
-
-    const formData = new FormData();
-    formData.append("videoFile", file);
-
-    try {
-      const res = await fetch("http://127.0.0.1:5000/kiri_api", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) { setStatus("error"); return; }
-
-      const data = await res.json();
-      jobId = data.jobId;
-    } catch (err) {
-      console.error(err);
-      setStatus("error");
-      return;
-    }
+    setStatus("processing");
+    const jobId = result.jobId;
 
     pollRef.current = setInterval(async () => {
       try {
@@ -131,8 +97,21 @@ export default function UploadVideo() {
         setStatus("error");
       }
     }, 6000);
-  };
+  } catch (e) {
+    console.error(e);
+    setStatus("error");
+  } finally {
+    setLoading(false);
+  }
+};
 
+
+  const handleFileSelect = (e) => {
+    const selected = e.target.files[0];
+    setFile(selected);
+    setVideoURL(URL.createObjectURL(selected));
+  };
+  
   useEffect(() => () => clearInterval(pollRef.current), []);
 
   return (

@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import SignIn from "/src/pages/SignIn.jsx";
-import NewSignUpPage from "./pages/NewSignUpPage";
+// import NewSignUpPage from "./pages/NewSignUpPage";
 import ProjectsPage from "./pages/ProjectsPage"; 
 import GalleryPage from "./pages/GalleryPage";
 import PopularPage from "./pages/PopularPage";
@@ -11,7 +11,6 @@ import CreatePage from "./pages/CreatePage";
 
 import SignInPage from "/src/pages/SignIn.jsx";
 import SignUpPage from "./pages/SignUp";
-import ProjectsPage from "./pages/ProjectsPage"; 
 // import ProfilePage from "./pages/ProfilePage";
 
 export default function App() {
@@ -20,7 +19,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signin" element={<SignIn />} />
-        <Route path="/register" element={<NewSignUpPage />} />
+
 
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/gallery" element={<GalleryPage />} />

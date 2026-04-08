@@ -27,7 +27,7 @@ export default function ModelThumbnail({ modelFolder, alt = '3D model', classNam
     renderer.setPixelRatio(1) // keep it light
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x1a1a2e)
+    scene.background = new THREE.Color(0x494f54)
 
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000)
 
