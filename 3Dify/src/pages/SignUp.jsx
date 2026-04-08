@@ -9,7 +9,7 @@ import { sendEmailVerification } from "firebase/auth";
 import { signOut } from "firebase/auth";
 import { db } from "../firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-
+import { deleteUser } from "firebase/auth";
 
 
 
