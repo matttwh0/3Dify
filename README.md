@@ -23,7 +23,7 @@ Aztech 3D Model Generator simplifies the process of creating 3D models from real
 - **Firebase** — Authentication, storage, and hosting
 
 ### Core Feature
-- **Autodesk Reality Capture** - file processing using photogrammetry techniques
+- **Gaussian Splatting** - 3D Image Generation Using Gaussians
 
 ## Features
 - Upload 360° video of an object
@@ -79,6 +79,11 @@ firebase init
 firebase deploy
 ```
 
+### 4. Test Auth(Optional)
+- Uncomment every line containing "connectAuthEmulator(auth, "http://localhost:9099");"
+```bash
+firebase emulators:start
+```
 
 ## Team Aztech
 - Jahnavi Panchal — jpanchal7872@sdsu.edu

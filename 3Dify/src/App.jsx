@@ -9,6 +9,10 @@ import ProjectDetail from "./pages/ProjectDetail";
 import CreatePage from "./pages/CreatePage";
 
 
+import SignInPage from "/src/pages/SignIn.jsx";
+import SignUpPage from "./pages/SignUp";
+import ProjectsPage from "./pages/ProjectsPage"; 
+// import ProfilePage from "./pages/ProfilePage";
 
 export default function App() {
   return (
@@ -25,6 +29,10 @@ export default function App() {
         <Route path="/create" element={<CreatePage />} />
 
 
+        <Route path="/signin" element={<SignInPage />} />
+        <Route path="/register" element={<SignUpPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        {/* <Route path="/profile" element={<ProfilePage />} /> */}
       </Routes>
     </Router>
   );
