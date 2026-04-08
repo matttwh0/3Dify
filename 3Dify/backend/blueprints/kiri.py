@@ -1,12 +1,16 @@
 import requests, time, threading, uuid
-from fastapi import HTTPException
-from flask import Blueprint, request, jsonify 
+from datetime import timedelta
+from flask import Blueprint, request, jsonify
 from firebase_admin import firestore
 import os
+import google.oauth2.service_account
 from firebase_admin import storage
 from flask_cors import cross_origin
 from flask_cors import CORS
 from .services.model_processing import extract_and_upload_assets
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SERVICE_ACCOUNT_PATH = os.path.join(BASE_DIR, "serviceAccountKey.json")
 
 
 #base URL : https://api.kiriengine.app/api/
@@ -29,7 +33,7 @@ CORS(
 )
 
 jobs = {}
-MOCK_MODE = False #set to false to use actual API
+MOCK_MODE = True #set to false to use actual API
 
 def poll_model_mock(job_id):
     """Simulates Kiri's queue → processing → done stages"""
@@ -105,16 +109,29 @@ def poll_model(scan_id,job_id, serialize, headers):
 
                 extract_and_upload_assets(bucket, scan_ref, uid, scan_id, result_path)
 
+                # Generate a signed download URL (valid 24 hours)
+                sa_creds = google.oauth2.service_account.Credentials.from_service_account_file(
+                    SERVICE_ACCOUNT_PATH,
+                    scopes=["https://www.googleapis.com/auth/cloud-platform"]
+                )
+                signed_url = blob.generate_signed_url(
+                    expiration=timedelta(hours=24),
+                    method="GET",
+                    version="v4",
+                    credentials=sa_creds,
+                )
+
                 # Then mark done
                 scan_ref.update({
                     "status": "done",
                     "resultPath": result_path,
                     "updatedAt": firestore.SERVER_TIMESTAMP,
-})
+                })
 
                 jobs[job_id] = {
                     "status": "done",
                     "resultPath": result_path,
+                    "downloadUrl": signed_url,
                 }
 
                 print(f"Saved model for scan {scan_id} to {result_path}")
@@ -231,17 +248,29 @@ def generate_model():
             )
             thread.start()
 
-            print(f"Mock job started: {fake_serialize}")
+        print(f"Mock job started: {fake_serialize}")
+        # Return same format as real Kiri POST response
+        return jsonify({
+            "jobId": fake_serialize,
+            "kiri_response": {
+                "code": 0,
+                "msg": "success",
+                "data": {"serialize": fake_serialize},
+                "ok": True
+            }
+        })
+    temp_path = None
+    scan_id = None
 
-            return jsonify({
-                "jobId": fake_serialize,
-                "kiri_response": {
-                    "code": 0,
-                    "msg": "success",
-                    "data": {"serialize": fake_serialize},
-                    "ok": True
-                }
-            }), 200
+    try:
+        data = request.get_json()
+        print("Incoming JSON:", data)
+
+        scan_id = data.get("scanId")
+        storage_path = data.get("storagePath")
+
+        if not scan_id or not storage_path:
+            return jsonify({"error": "Missing scanId or storagePath"}), 400
 
         temp_path = f"/tmp/{scan_id}.mp4"
 
