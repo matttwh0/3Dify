@@ -208,6 +208,39 @@ def generate_model():
 
     db = firestore.client()
     bucket = storage.bucket()
+    if MOCK_MODE:
+        fake_serialize = uuid.uuid4().hex
+
+        # Mimic exact Kiri POST response format
+        jobs[fake_serialize] = {
+            "status": "processing",
+            "downloadUrl": None,
+            "kiri_status": "queued",
+            "kiri_response": {
+                "code": 0,
+                "msg": "success",
+                "data": {
+                    "serialize": fake_serialize
+                },
+                "ok": True
+            }
+        }
+
+        thread = threading.Thread(target=poll_model_mock, args=(fake_serialize,))
+        thread.daemon = True
+        thread.start()
+
+        print(f"Mock job started: {fake_serialize}")
+        # Return same format as real Kiri POST response
+        return jsonify({
+            "jobId": fake_serialize,
+            "kiri_response": {
+                "code": 0,
+                "msg": "success",
+                "data": {"serialize": fake_serialize},
+                "ok": True
+            }
+        })
     temp_path = None
     scan_id = None
 
@@ -248,29 +281,17 @@ def generate_model():
             )
             thread.start()
 
-        print(f"Mock job started: {fake_serialize}")
-        # Return same format as real Kiri POST response
-        return jsonify({
-            "jobId": fake_serialize,
-            "kiri_response": {
-                "code": 0,
-                "msg": "success",
-                "data": {"serialize": fake_serialize},
-                "ok": True
-            }
-        })
-    temp_path = None
-    scan_id = None
+            print(f"Mock job started: {fake_serialize}")
 
-    try:
-        data = request.get_json()
-        print("Incoming JSON:", data)
-
-        scan_id = data.get("scanId")
-        storage_path = data.get("storagePath")
-
-        if not scan_id or not storage_path:
-            return jsonify({"error": "Missing scanId or storagePath"}), 400
+            return jsonify({
+                "jobId": fake_serialize,
+                "kiri_response": {
+                    "code": 0,
+                    "msg": "success",
+                    "data": {"serialize": fake_serialize},
+                    "ok": True
+                }
+            }), 200
 
         temp_path = f"/tmp/{scan_id}.mp4"
 
