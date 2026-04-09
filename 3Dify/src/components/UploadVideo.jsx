@@ -24,6 +24,8 @@ export default function UploadVideo() {
 
   try {
     setLoading(true);
+    setStatus("Uploading")
+
 
     console.log("currentUser:", user?.uid);
 

@@ -19,7 +19,7 @@ SERVICE_ACCOUNT_PATH = os.path.join(BASE_DIR, "serviceAccountKey.json")
 kiri_bp = Blueprint("kiri_api", __name__, template_folder="templates")
 
 jobs = {}
-MOCK_MODE = False #set to false to use actual API
+MOCK_MODE = True #set to false to use actual API
 
 def poll_model_mock(job_id):
     """Simulates Kiri's queue → processing → done stages"""
