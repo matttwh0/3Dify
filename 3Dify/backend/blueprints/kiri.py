@@ -1,4 +1,5 @@
 import requests, time, threading, uuid
+from flask import send_file
 from datetime import timedelta
 from flask import Blueprint, request, jsonify
 from firebase_admin import firestore
@@ -32,7 +33,7 @@ def poll_model_mock(job_id):
     time.sleep(15)
 
     # Stage 3: done — mimic exact Kiri success response
-    fake_download_url = "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-zip-file.zip"
+    fake_download_url = "http://127.0.0.1:5000/mock_model_zip"
     jobs[job_id] = {
         "status": "done",
         "downloadUrl": fake_download_url,
@@ -372,6 +373,13 @@ def resume_kiri(scan_id):
         "jobId": job_id,
         "serialize": serialize,
     }), 200
+
+
+MOCK_ZIP_PATH = "/path/to/your/model.zip"  # <-- change this
+
+@kiri_bp.route("/mock_model_zip", methods=["GET"])
+def mock_model_zip():
+    return send_file(MOCK_ZIP_PATH, mimetype="application/zip", as_attachment=True, download_name="model.zip")
 
 
 @kiri_bp.route("/test_process_existing_zip", methods=["POST"])
