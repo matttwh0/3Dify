@@ -27,11 +27,6 @@ export default function LandingPage() {
         <HowWeWork />
       </section>
 
-      {/* Before / After */}
-      <section className="border-t border-white/10">
-        <BeforeAfter />
-      </section>
-
       {/* CTA + Footer */}
       <CallToAction />
       <Footer />
@@ -273,29 +268,6 @@ function HowWeWork() {
   );
 }
 
-/* ----------------------- BEFORE / AFTER ----------------------- */
-
-function BeforeAfter() {
-  return (
-    <div className="max-w-6xl mx-auto px-4 py-12 md:py-16">
-      <div className="grid md:grid-cols-2 gap-6">
-        <div>
-          <p className="text-sm text-gray-400 mb-2">Input</p>
-          <div className="h-56 md:h-72 rounded-xl border border-white/10 bg-white/[0.03] grid place-items-center">
-            <Spinner />
-          </div>
-        </div>
-        <div>
-          <p className="text-sm text-gray-400 mb-2">Output</p>
-          <div className="h-56 md:h-72 rounded-xl border border-white/10 bg-white/[0.03] grid place-items-center">
-            <Spinner />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ----------------------- CTA ----------------------- */
 
 function CallToAction() {
@@ -352,15 +324,6 @@ function Footer() {
 }
 
 /* ----------------------- SMALL UI ----------------------- */
-
-function Spinner() {
-  return (
-    <div className="flex items-center gap-2 text-gray-400">
-      <div className="h-3 w-3 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-      <span className="text-xs">processing…</span>
-    </div>
-  );
-}
 
 function ImageIcon() {
   return (
