@@ -1,86 +1,84 @@
 # 3Dify
-3D Modeling Application
-Turn 360° videos into realistic, 3D-printable models in minutes.
+Turn 360° videos into realistic 3D models in minutes.
 
+---
+
+<!-- Demo -->
+<!-- Add a screenshot or GIF here after the demo, e.g.: -->
+<!-- ![3Dify demo](./docs/demo.gif) -->
 
 ## Overview
-Aztech 3D Model Generator simplifies the process of creating 3D models from real-world objects using just a video. No more tedious photogrammetry setups or expensive 3D scanners. Simply upload a 360° video, and our backend will process it into a usable, downloadable 3D model.
-
+3Dify lets you upload a 360° video of any object and get back a downloadable 3D model — no expensive scanners or manual setups required. The backend sends your video to the KIRI Engine API for reconstruction, then stores the result in Firebase for you to preview and download.
 
 ## Tech Stack
 
 ### Frontend
-- **React** — JavaScript library for building UI
-- **Vite** — Lightning-fast build tool for modern web apps
-- **Tailwind CSS** — Utility-first CSS framework
-- **JavaScript** — Core frontend scripting language
-  
-### Backend
-- **Flask** — Lightweight Python web framework
-- **FastAPI**
-  
-### Cloud / Database
-- **Firebase** — Authentication, storage, and hosting
+- **React** — UI library
+- **Vite** — Build tool
+- **Tailwind CSS v4** — Utility-first styling
+- **Three.js** — In-browser 3D model viewer
 
-### Core Feature
-- **Gaussian Splatting** - 3D Image Generation Using Gaussians
+### Backend
+- **Flask** — Python web framework
+- **KIRI Engine API** — Cloud-based 3D reconstruction from video
+
+### Cloud / Database
+- **Firebase** — Authentication, Firestore (database), and Cloud Storage
 
 ## Features
-- Upload 360° video of an object
-- Automatically extract frames and generate 3D models via photogrammetry
-- Preview and download 3D models (.obj/.stl)
-- User accounts and model gallery (via Firebase)
-- (Optional) Share models with other users
-
+- Upload a 360° video of an object
+- KIRI Engine processes the video into a 3D model
+- Preview the model in-browser with an interactive 3D viewer
+- Download the completed model as a `.zip`
+- User accounts with personal model galleries (via Firebase)
+- Projects page to track and manage your scans
 
 ## Project Structure
 ```
-project-root/
-├── client/ # React + Vite frontend
-│ ├── components/ # Reusable UI components
-│ └── pages/ # Landing, upload, preview
-├── server/ # Flask backend API
-│ └── routes/ # API endpoints
-└── firebase/ # Firebase functions and config
+Aztech/
+├── 3Dify/                  # React + Vite frontend
+│   ├── src/
+│   │   ├── components/     # ModelViewer, ModelThumbnail, UploadVideo
+│   │   ├── pages/          # LandingPage, CreatePage, ProjectsPage, GalleryPage
+│   │   ├── services/       # Firebase scan helpers
+│   │   └── context/        # AuthContext
+│   └── backend/            # Flask backend
+│       ├── blueprints/     # kiri.py — KIRI API integration
+│       └── main.py         # App entry point
 ```
 
-
 ## Getting Started
-
 
 ### Prerequisites
 - Node.js + npm
 - Python 3.10+
-- Firebase CLI (optional for hosting)
+- Firebase project with Firestore and Storage enabled
 
-
-### 1. Install & Run Frontend
+### 1. Run Frontend
 ```bash
-cd ./3dify/
+cd 3Dify
 npm install
 npm run dev
 ```
 
-
 ### 2. Run Backend
 ```bash
-cd ./3dify/backend/
-pip install -r requirements.txt
+cd 3Dify/backend
+source venv/bin/activate   # or: venv/bin/python3 main.py
 python3 main.py
-scroll down and click 'choose video'
-click 'upload video' when ready
 ```
 
+> **Mock mode:** `MOCK_MODE = True` in `blueprints/kiri.py` simulates the full processing pipeline without hitting the KIRI API. Set it to `False` to use the real API.
 
-### 3. Firebase Setup (Optional)
+### 3. Firebase Setup
 ```bash
 firebase login
 firebase init
 firebase deploy
 ```
 
-### 4. Test Auth(Optional)
-- Uncomment every line containing "connectAuthEmulator(auth, "http://localhost:9099");"
+### 4. Test Auth (Optional)
+Uncomment `connectAuthEmulator(auth, "http://localhost:9099");` in the Firebase config, then:
 ```bash
 firebase emulators:start
 ```
@@ -90,8 +88,7 @@ firebase emulators:start
 - Matthew Tran — mtran4477@sdsu.edu
 - Santiago Verdugo — sverdugo3119@sdsu.edu
 
-
 ## Future Plans
 - Add measurement tools to scale models for 3D printing
-- Improve model accuracy with AI-based filters
-- Support additional file formats (e.g., GLB)
+- Support additional export formats (STL)
+- Share models publicly via gallery links
