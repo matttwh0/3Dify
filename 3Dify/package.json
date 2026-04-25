@@ -14,6 +14,7 @@
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.1.13",
     "firebase": "^12.3.0",
+    "lightningcss": "^1.32.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.6",
