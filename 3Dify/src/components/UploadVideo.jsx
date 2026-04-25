@@ -139,6 +139,15 @@ export default function UploadVideo() {
       {status !== "idle" && (
         <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 flex items-center justify-between gap-4">
           <div>
+            {status === "uploading" && (
+              <div className="flex items-center gap-3">
+                <div className="h-3 w-3 rounded-full border-2 border-white/20 border-t-white animate-spin shrink-0" />
+                <div>
+                  <p className="text-xs font-mono text-white">Uploading video…</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Hang tight while we upload your file.</p>
+                </div>
+              </div>
+            )}
             {status === "processing" && (
               <div className="flex items-center gap-3">
                 <div className="h-3 w-3 rounded-full border-2 border-white/20 border-t-white animate-spin shrink-0" />
