@@ -10,7 +10,7 @@ Turn 360° videos into realistic 3D models in minutes.
 </div>
 
 ## Overview
-3Dify lets you upload a 360° video of any object and get back a downloadable 3D model — no expensive scanners or manual setups required. The backend sends your video to the KIRI Engine API for reconstruction, then stores the result in Firebase for you to preview and download.
+3Dify lets you upload a 360° video of any object and get back a downloadable 3D model. No expensive scanners or manual setups required. The backend processes your video using gaussian splatting and mesh reconstruction, then stores the result in Firebase for you to preview and download.
 
 ## Tech Stack
 
